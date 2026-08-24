@@ -22,6 +22,10 @@ Setiap file `*.dc.html` adalah satu artboard mobile 390×844;
 | 9 | `TerjemahPerKata.dc.html` | Terjemah interlinear per kata satu halaman |
 | 10 | `KataTersimpan.dc.html` | Riwayat kata yang pernah dianalisis |
 | 11 | `Pengaturan.dc.html` | Ukuran teks, transliterasi, panjang konteks AI |
+| 12 | `IzinModeGlobal.dc.html` | Onboarding izin mode global (overlay + tangkap layar) |
+| 13 | `BubbleGlobal.dc.html` | Bubble mengambang di atas aplikasi lain (contoh: Qur'an digital) |
+| 14 | `LingkariGlobal.dc.html` | Frame beku + lingkari di app PDF lain, kartu "kitab terdeteksi" |
+| 15 | `DeteksiQuran.dc.html` | Popup deteksi ayat — teks dicocokkan dengan mushaf resmi, tab Arti |
 
 ## Design tokens
 
@@ -44,3 +48,21 @@ Setiap file `*.dc.html` adalah satu artboard mobile 390×844;
   Cara Baca (harakat + transliterasi + audio) / I'rob / Shorof / Arti.
 - Mode terjemah per kata menumpuk arti Indonesia langsung di bawah
   setiap kata Arab (interlinear), di-toggle dari toolbar reader.
+
+## Mode global (layar 12–15)
+
+- Bubble mengambang di atas aplikasi apa pun (Android: foreground
+  service + `SYSTEM_ALERT_WINDOW`); ditekan → layar dibekukan lewat
+  tangkapan layar (MediaProjection) → pengguna melingkari di frame beku.
+- Potongan gambar yang dilingkari + margin konteks dikirim langsung ke
+  AI multimodal (tanpa OCR terpisah) — satu panggilan menghasilkan
+  harakat, i'rob, shorof, dan arti.
+- Sekali per sesi, satu halaman penuh dikirim untuk deteksi otomatis
+  judul kitab, bab, dan halaman (kartu "Kitab terdeteksi", layar 14);
+  hasil deteksi di-cache.
+- Teks Al-Qur'an yang terdeteksi dicocokkan dengan mushaf resmi
+  (layar 15) — harakat dan terjemah diambil dari sumber kanonik,
+  bukan tebakan AI.
+- Privasi: tangkapan layar hanya diambil saat bubble ditekan dan tidak
+  disimpan; kedua izin dijelaskan di layar 12. Fitur ini Android-first
+  (iOS tidak mengizinkan overlay lintas aplikasi).
