@@ -1,0 +1,20 @@
+{
+  "artboards": [
+    { "file": "Onboarding.dc.html", "title": "1 · Onboarding", "x": 0, "y": 0, "w": 390, "h": 844 },
+    { "file": "Main.dc.html", "title": "2 · Beranda", "x": 480, "y": 0, "w": 390, "h": 844 },
+    { "file": "ImportKitab.dc.html", "title": "3 · Tambah Kitab", "x": 960, "y": 0, "w": 390, "h": 844 },
+    { "file": "ReaderNormal.dc.html", "title": "4 · Reader", "x": 1440, "y": 0, "w": 390, "h": 844 },
+    { "file": "ModeAI.dc.html", "title": "5 · Mode AI Aktif", "x": 1920, "y": 0, "w": 390, "h": 844 },
+    { "file": "Melingkari.dc.html", "title": "6 · Lingkari Kata", "x": 2400, "y": 0, "w": 390, "h": 844 },
+    { "file": "AnalisisCaraBaca.dc.html", "title": "7 · Analisis — Cara Baca", "x": 0, "y": 1000, "w": 390, "h": 844 },
+    { "file": "AnalisisIrob.dc.html", "title": "8 · Analisis — I'rob", "x": 480, "y": 1000, "w": 390, "h": 844 },
+    { "file": "TerjemahPerKata.dc.html", "title": "9 · Terjemah Per Kata", "x": 960, "y": 1000, "w": 390, "h": 844 },
+    { "file": "KataTersimpan.dc.html", "title": "10 · Kata Tersimpan", "x": 1440, "y": 1000, "w": 390, "h": 844 },
+    { "file": "Pengaturan.dc.html", "title": "11 · Pengaturan", "x": 1920, "y": 1000, "w": 390, "h": 844 }
+  ],
+  "annotations": [
+    { "id": "alur-utama", "x": 0, "y": -150, "w": 640, "text": "Alur utama (kiri ke kanan): onboarding → beranda → tambah kitab → baca kitab → tekan tombol AI mengambang → lingkari kata yang ingin dipelajari.\nEfek glow tepi layar meniru gaya Galaxy AI: layar meredup, tepi menyala gradien." },
+    { "id": "baris-hasil", "x": 0, "y": 1900, "w": 640, "text": "Baris bawah: hasil analisis muncul sebagai bottom sheet bertab (Cara Baca / I'rob / Shorof / Arti) — AI membaca ±5 kata sebelum & sesudah lingkaran sebagai konteks (kata konteks di-highlight kuning di layar 6).\nLayar 9: mode terjemah per kata — arti Indonesia tersusun di bawah tiap kata Arab." }
+  ],
+  "launch": { "view": "canvas" }
+}
