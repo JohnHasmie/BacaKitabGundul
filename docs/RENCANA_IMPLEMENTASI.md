@@ -87,7 +87,7 @@ Keputusan penting:
 | Backend proxy | Ktor (Kotlin); lapisan AI model-agnostic (klien kompatibel-OpenAI + adaptor per penyedia) | Endpoint tipis; model per endpoint via konfigurasi |
 | Model AI | **Gemini 2.5 Flash (bawaan hemat)**; Qwen-VL kandidat A/B; Claude Sonnet 5 pembanding & jalur eskalasi | Multimodal, JSON terjamin skema, streaming. Detail & gerbang kualitas di §7 |
 | Data mushaf | Dataset teks Qur'an kanonik (mis. Tanzil/QUL) di backend | Pencocokan ayat → harakat & terjemah resmi, bukan tebakan AI |
-| Font | Amiri (Arab) + Plus Jakarta Sans (UI) dibundel di `res/font` | Sesuai design token mockup |
+| Font | Amiri (Arab) + Figtree (UI, variable) dibundel di `res/font` | Sesuai design token Tegas Glass |
 | Target OS | minSdk 26 (Android 8), target terbaru | MediaProjection & overlay stabil; cakupan perangkat pesantren luas |
 
 ## 4. Fase Implementasi
@@ -102,11 +102,10 @@ Keputusan penting:
   permukaan translusen + haze/blur via `Modifier.graphicsLayer`/
   RenderEffect di API 31+, fallback permukaan solid semi-transparan di
   bawahnya, `PillButton` hijau, `RailTab` vertikal kaca, `GlassDock`
-  navigasi, `StreakBadge`), radius 18–30; `darkColorScheme` disiapkan
-  sejak awal.
-- Komponen bersama: `AppBottomSheet` (grabber + radius 28), `TabPills`,
-  `PrimaryButton`, `AsyncView` (loading/error/empty/content).
+  navigasi, `StreakCard`, `AsyncView` loading/error/empty/content),
+  radius 18–30; `darkColorScheme` disiapkan sejak awal.
 - CI GitHub Actions: `lint` + unit test + `assembleDebug`.
+- **Status: selesai (26 Agu 2026)** — lihat README bagian Project layout.
 
 ### Fase 1 — Reader inti (layar 1–4, 10 sebagian) (±1,5 minggu)
 
