@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Classic Book Reader</string>
+
+    <string name="nav_home">Beranda</string>
+    <string name="nav_library">Kitab</string>
+    <string name="nav_saved">Tersimpan</string>
+    <string name="nav_settings">Atur</string>
+
+    <string name="home_greeting_prefix">Ahlan wa sahlan,</string>
+    <string name="streak_title">Istiqomah</string>
+    <string name="streak_days_suffix">hari</string>
+    <string name="streak_subtitle">Baca atau muroja\'ah hari ini untuk melanjutkan</string>
+
+    <string name="placeholder_coming_soon">Segera hadir di fase berikutnya</string>
+</resources>

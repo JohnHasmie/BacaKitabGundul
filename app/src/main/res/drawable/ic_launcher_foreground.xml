@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    <!-- Sparkle mark over an open-book silhouette, matching the app's AI-circle identity. -->
+    <group android:translateX="30" android:translateY="30">
+        <path
+            android:fillColor="#F0A63A"
+            android:pathData="M24,6 L27.8,16.2 L38,20 L27.8,23.8 L24,34 L20.2,23.8 L10,20 L20.2,16.2 Z" />
+        <path
+            android:fillColor="#FFFFFF"
+            android:pathData="M37.2,30.4 L38.8,34.4 L42.8,36 L38.8,37.6 L37.2,41.6 L35.6,37.6 L31.6,36 L35.6,34.4 Z" />
+    </group>
+</vector>

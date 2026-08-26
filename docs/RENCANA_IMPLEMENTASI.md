@@ -1,4 +1,9 @@
-# Rencana Implementasi — Baca Kitab Gundul
+# Rencana Implementasi — Classic Book Reader
+
+**Konvensi (v2.5):** nama produk, kode, pengenal, dan skema database
+sepenuhnya **English** (`com.classicbookreader.app`, `saved_words`,
+`arabic_text`, …); teks UI tetap Bahasa Indonesia; istilah domain syar'i
+(i'rab, sarf, murajaah) dipakai sebagai kosakata domain.
 
 **Revisi v2 (Kotlin-only).** Keputusan 26 Agu 2026: aplikasi dibangun
 **native Android penuh dengan Kotlin + Jetpack Compose** — tanpa Flutter,
@@ -89,7 +94,7 @@ Keputusan penting:
 
 ### Fase 0 — Fondasi proyek (±3 hari)
 
-- Scaffold proyek (`com.bacakitabgundul.app`), Gradle version catalog,
+- Scaffold proyek (`com.classicbookreader.app`), Gradle version catalog,
   Hilt, Navigation Compose.
 - Design token "Tegas Glass" sebagai tema Compose: `AppColors`
   (`#F4F3EE`, `#1C1B16`, `#1E5C44`, `#F0A63A`), `AppTypography`
@@ -208,40 +213,40 @@ structured-output penyedia masing-masing) dan streaming.
 
 ```
 POST /v1/analyze
-  body : { image: <jpeg base64>,        // seleksi + margin konteks
-           selectionBbox: {x,y,w,h},    // relatif terhadap image
-           kitabContext?: { judul, bab, halaman },  // dari /detect atau metadata kitab
-           opsi: { transliterasi: bool, bahasaArti: "id" } }
+  body : { image: <jpeg base64>,          // seleksi + margin konteks
+           selectionBbox: {x,y,w,h},      // relatif terhadap image
+           bookContext?: { title, chapter, page },  // dari /detect atau metadata kitab
+           options: { transliteration: bool, glossLanguage: "id" } }
   hasil (streaming, JSON sesuai skema):
-         { teksTerpilih, teksBerharakat, transliterasi,
-           konteksSebelum, konteksSesudah,            // teks yang ikut dibaca
-           kata: [ { arab, harakat, translit, arti,
-                     irob: { kedudukan, alasan, tanda },
-                     shorof: { akarKata, wazan, bentuk } } ],
-           artiFrasa, tingkatKeyakinan }
+         { selectedText, vocalizedText, transliteration,
+           contextBefore, contextAfter,             // teks yang ikut dibaca
+           words: [ { arabic, vocalized, transliteration, gloss,
+                      irab: { role, reasoning, caseMarker },
+                      sarf: { root, pattern, form } } ],
+           phraseGloss, confidence }
 
 POST /v1/page-translate
-  body : { image: <jpeg halaman penuh>, kitabContext? }
-  hasil: { baris: [ { kata: [ { arab, gloss, bbox } ] } ] }
+  body : { image: <jpeg halaman penuh>, bookContext? }
+  hasil: { lines: [ { words: [ { arabic, gloss, bbox } ] } ] }
 
 POST /v1/enrich                       // dipanggil lazy saat tab Wawasan dibuka
-  body : { kata, akarKata?, konteksKalimat?, kitabContext? }
-  hasil: { keluargaKata: [ { arab, harakat, arti } ],
-           quran: { jumlahKemunculanAkar,
-                    contoh: [ { surah, ayat, potongan, terjemah } ] },
+  body : { word, root?, sentenceContext?, bookContext? }
+  hasil: { wordFamily: [ { arabic, vocalized, gloss } ],
+           quran: { rootOccurrenceCount,
+                    examples: [ { surah, ayah, excerpt, translation } ] },
                     // ↑ divalidasi ke dataset mushaf sebelum dikirim
-           tahukahKamu?, faidah?,
-           referensiSilang: [ { kitab, bagian, keterangan } ],
+           funFact?, note?,
+           crossReferences: [ { bookTitle, section, remark } ],
                     // ↑ hanya kitab dari daftar rujukan terkurasi (§5b)
            }
-  cache : per akarKata — global lintas pengguna (dihasilkan sekali)
+  cache : per root — global lintas pengguna (dihasilkan sekali)
 
 POST /v1/detect
   body : { image: <jpeg layar/halaman penuh> }
-  hasil: { jenis: "kitab" | "quran" | "lainnya",
-           kitab?: { judul, bab, halaman, keyakinan },
-           quran?: { surah, ayatMulai, ayatSelesai } }
-           // jenis "quran" → backend lampirkan teks mushaf kanonik + terjemah
+  hasil: { type: "book" | "quran" | "other",
+           book?: { title, chapter, page, confidence },
+           quran?: { surah, ayahStart, ayahEnd } }
+           // type "quran" → backend lampirkan teks mushaf kanonik + terjemah
 ```
 
 Strategi prompt: sistem prompt tetap (dimanfaatkan prompt caching — konten
@@ -284,15 +289,19 @@ label "Penjelasan AI" dan tombol laporkan.
 
 ## 6. Skema Data Lokal (Room)
 
-- `kitab(id, judul, pathFile, jmlHalaman, halamanTerakhir, coverPath, dibuat)`
-- `kata_tersimpan(id, kitabId?, sumberGlobal?, arab, harakat, translit,
-  arti, irobJson, shorofJson, halaman, dibuat, statusHafal)`
-- `cache_analisis(kunciHash, responsJson, dibuat)` — kunci =
-  sha256(kitabId|halaman|bboxNormalisasi) atau sha256(gambar) di mode global
-- `cache_halaman_terjemah(kitabId, halaman, responsJson, dibuat)`
-- `cache_wawasan(akarKata, responsJson, dibuat)` — salinan lokal dari
-  cache global backend
-- Preferensi (ukuran font, transliterasi, panjang konteks, tema) di
+Skema (English, snake_case):
+
+- `books(id, title, file_path, page_count, last_read_page, cover_path,
+  created_at)`
+- `saved_words(id, book_id?, global_source?, arabic_text, vocalized_text,
+  transliteration, gloss, irab_json, sarf_json, page_number, created_at,
+  memorization_status)`
+- `analysis_cache(cache_key, response_json, created_at)` — key =
+  sha256(book_id|page|normalized_bbox) atau sha256(image) di mode global
+- `page_translation_cache(book_id, page_number, response_json, created_at)`
+- `insight_cache(root, response_json, created_at)` — salinan lokal dari
+  cache global backend (tab Wawasan)
+- Preferensi (font_size, show_transliteration, context_length, theme) di
   DataStore.
 
 ## 7. Strategi Model AI & Estimasi Biaya (hemat dulu)
@@ -371,6 +380,10 @@ setelah Fase 4–5.
 
 ## Riwayat keputusan
 
+- **v2.5 (26 Agu 2026):** Nama produk **Classic Book Reader**; seluruh
+  kode, pengenal, kontrak API, dan skema database memakai konvensi
+  English (UI tetap Bahasa Indonesia). Fase 0 dieksekusi: scaffold
+  Kotlin/Compose + tema Tegas Glass + komponen bersama + CI.
 - **v2.4 (26 Agu 2026):** Gaya final "Tegas Glass" — identitas Tegas Ceria
   dihaluskan ala Apple (panel kaca buram, Figtree sentence case, bayangan
   lembut) demi keterbacaan & kesan profesional; kartu streak istiqomah
