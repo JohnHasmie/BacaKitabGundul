@@ -57,10 +57,10 @@ Keputusan penting:
 
 - **API key tidak pernah tertanam di aplikasi.** Semua panggilan AI lewat
   backend proxy kecil — tempat kuota, cache bersama, dan telemetri.
-- **Satu bahasa ujung-ke-ujung (opsional).** Backend direkomendasikan
-  **Ktor (Kotlin) + Anthropic Java SDK** agar seluruh proyek satu bahasa;
-  alternatif setara: Node.js (Fastify) + `@anthropic-ai/sdk` bila infra
-  tim lebih siap untuk itu. Kontrak API (§5) sama untuk keduanya.
+- **Backend Ktor (Kotlin) dengan lapisan AI model-agnostic.** Klien AI
+  memakai antarmuka kompatibel-OpenAI + adaptor per penyedia; model untuk
+  tiap endpoint ditentukan **konfigurasi backend** — ganti Gemini ↔ Qwen ↔
+  Claude tanpa rilis aplikasi. Strategi pemilihan model di §7.
 
 ## 3. Pilihan Teknologi
 
@@ -76,8 +76,8 @@ Keputusan penting:
 | Jaringan | OkHttp + Retrofit + kotlinx.serialization; SSE (OkHttp EventSource) untuk streaming hasil analisis | Streaming = harakat tampil duluan sebelum i'rob lengkap |
 | Bubble overlay | `WindowManager` + `SYSTEM_ALERT_WINDOW`, Compose di `ComposeView` overlay | Bubble + jendela lingkari di atas app lain |
 | Tangkap layar | MediaProjection API | Satu-satunya jalur resmi; persetujuan pengguna per sesi |
-| Backend proxy | Ktor + Anthropic Java SDK (rekomendasi) / Node.js + SDK TS (alternatif) | Endpoint tipis; mudah di VPS yang ada |
-| Model AI | `claude-opus-5` (bawaan; kualitas i'rob terbaik) | Multimodal, structured outputs, streaming. §7 untuk biaya & opsi hemat |
+| Backend proxy | Ktor (Kotlin); lapisan AI model-agnostic (klien kompatibel-OpenAI + adaptor per penyedia) | Endpoint tipis; model per endpoint via konfigurasi |
+| Model AI | **Gemini 2.5 Flash (bawaan hemat)**; Qwen-VL kandidat A/B; Claude Sonnet 5 pembanding & jalur eskalasi | Multimodal, JSON terjamin skema, streaming. Detail & gerbang kualitas di §7 |
 | Data mushaf | Dataset teks Qur'an kanonik (mis. Tanzil/QUL) di backend | Pencocokan ayat → harakat & terjemah resmi, bukan tebakan AI |
 | Font | Amiri (Arab) + Plus Jakarta Sans (UI) dibundel di `res/font` | Sesuai design token mockup |
 | Target OS | minSdk 26 (Android 8), target terbaru | MediaProjection & overlay stabil; cakupan perangkat pesantren luas |
@@ -191,9 +191,9 @@ Keputusan penting:
 *(Tidak berubah dari v1 — netral terhadap bahasa backend.)*
 
 Semua endpoint menerima `Authorization: Bearer <token pengguna>` (anonim
-dulu, akun menyusul), rate-limit per perangkat, dan memakai Anthropic SDK
-resmi di sisi server (streaming + `output_config.format` untuk JSON
-terjamin skema).
+dulu, akun menyusul), rate-limit per perangkat, dan lapisan AI model-agnostic: model per
+endpoint dari konfigurasi, respons dipaksa JSON sesuai skema (fitur
+structured-output penyedia masing-masing) dan streaming.
 
 ```
 POST /v1/analyze
@@ -280,23 +280,45 @@ secara teknis, bukan sekadar niat:
 - Preferensi (ukuran font, transliterasi, panjang konteks, tema) di
   DataStore.
 
-## 7. Model AI & Estimasi Biaya
+## 7. Strategi Model AI & Estimasi Biaya (hemat dulu)
 
-Bawaan: **`claude-opus-5`** — kualitas penalaran nahwu/i'rob terbaik
-(input $5 / output $25 per juta token). Perkiraan kasar per permintaan:
+**Keputusan (26 Agu 2026): mulai dari model termurah yang lolos gerbang
+kualitas.** Model dipilih **per endpoint lewat konfigurasi backend**
+(lapisan model-agnostic, §5) — mengganti penyedia/model tidak butuh rilis
+aplikasi.
 
-| Operasi | Perkiraan token | Perkiraan biaya (opus-5) |
+- **Bawaan awal: Gemini 2.5 Flash** ($0,30 masuk / $2,50 keluar per juta
+  token) untuk semua endpoint — vision & multibahasa kuat di kelas harga
+  ini, satu penyedia, free tier untuk masa pengembangan.
+- **Kandidat A/B: Qwen-VL** (DashScope — cek harga vision terkini) bila
+  lolos uji dan lebih murah.
+- **Pembanding atas & jalur eskalasi: Claude Sonnet 5** ($2/$10) — dipakai
+  di uji banding, dan sebagai tombol "analisis mendalam" / fitur premium
+  bila model hemat gagal di kasus i'rob rumit.
+- **`/enrich` (Wawasan) tetap pakai model kuat** (Sonnet 5): dihasilkan
+  sekali per akar kata untuk semua pengguna, jadi biayanya amortisasi ke
+  nyaris nol — tidak ada alasan berhemat di sana.
+
+| Operasi | Perkiraan token | Biaya (Gemini 2.5 Flash) |
 | ------- | --------------- | ------------------------ |
-| Analisis lingkaran (crop kecil + JSON) | ~1.500 masuk / ~700 keluar | ± $0,025 |
-| Terjemah 1 halaman penuh | ~2.000 masuk / ~2.500 keluar | ± $0,07 |
-| Deteksi kitab (1× per sesi/app) | ~1.800 masuk / ~150 keluar | ± $0,013 |
-| Wawasan per akar kata (1× seumur hidup, global) | ~1.200 masuk / ~900 keluar | ± $0,03 sekali → gratis untuk semua pengguna berikutnya |
+| Analisis lingkaran (crop kecil + JSON) | ~1.500 masuk / ~700 keluar | ± $0,002 |
+| Terjemah 1 halaman penuh | ~2.000 masuk / ~2.500 keluar | ± $0,007 |
+| Deteksi kitab (1× per sesi/app) | ~1.800 masuk / ~150 keluar | ± $0,001 |
+| Wawasan per akar (1× seumur hidup, Sonnet 5) | ~1.200 masuk / ~900 keluar | ± $0,012 sekali → gratis untuk semua pengguna berikutnya |
 
-Cache analisis lokal + cache backend menekan pemakaian ulang menjadi $0.
-Bila biaya per pengguna perlu ditekan (keputusan pemilik produk, bukan
-default): `claude-sonnet-5` ($2/$10, ±40% biaya) atau `claude-haiku-4-5`
-($1/$5) khusus `/detect` dan `/page-translate`, dengan opus-5 tetap untuk
-analisis i'rob. Prompt caching memangkas biaya sistem prompt berulang.
+Skenario pengguna aktif (10 lingkaran + 2 halaman/hari): **± $0,8/bulan**
+(vs ± $3,9 dengan campuran Sonnet) — belum termasuk potongan cache dua
+lapis, yang membuat permintaan berulang jadi $0.
+
+**Gerbang kualitas (wajib sebelum kunci model):** uji 50 frasa emas +
+beberapa kasus aqidah/fiqih dijalankan di Gemini Flash, Qwen-VL, dan
+Sonnet 5 sebagai pembanding; pakai yang termurah yang masih memenuhi
+ambang ustadz pembina (≥90% harakat benar, i'rob masuk akal, moderasi
+konten keagamaan konsisten). Uji yang sama diulang tiap ganti model/prompt.
+
+**Catatan kebijakan data:** pakai tier berbayar Google dengan jaminan data
+tidak dipakai training; bila Qwen dipakai, tangkapan layar transit ke
+server di China — wajib dicantumkan di kebijakan privasi aplikasi.
 
 ## 8. Risiko & Mitigasi
 
@@ -310,6 +332,7 @@ analisis i'rob. Prompt caching memangkas biaya sistem prompt berulang.
 | iOS belum tergarap | Disengaja: v1 fokus Android; iOS menyusul sebagai app Swift kecil (reader + Share Extension) setelah produk terbukti |
 | Bubble dimatikan battery saver (OEM tertentu) | Foreground service + panduan whitelist per merek di layar 12 |
 | Konten keagamaan keliru / di luar manhaj | Kebijakan §5b: daftar putih kitab, validasi kutipan ke korpus, label "penjelasan AI", tombol laporkan, tinjauan ustadz berkala |
+| Kualitas model hemat di bawah ambang | Gerbang uji 50 frasa emas sebelum model dikunci; eskalasi per-kasus ke Sonnet 5 ("analisis mendalam"); ganti model hanya soal konfigurasi |
 
 ## 9. Urutan Pengerjaan & Perkiraan Waktu
 
@@ -333,6 +356,10 @@ setelah Fase 4–5.
 
 ## Riwayat keputusan
 
+- **v2.2 (26 Agu 2026):** Strategi model "hemat dulu" — Gemini 2.5 Flash
+  bawaan semua endpoint, lapisan AI model-agnostic di backend, Qwen-VL
+  kandidat A/B, Claude Sonnet 5 pembanding atas & jalur eskalasi;
+  keputusan final model lewat gerbang uji 50 frasa emas.
 - **v2.1 (26 Agu 2026):** Tambah fitur Wawasan (tab kelima: keluarga kata,
   kemunculan di Al-Qur'an tervalidasi, fun fact, faidah, referensi silang
   antar kitab) + kebijakan konten §5b: seluruh rujukan keagamaan mengikuti
