@@ -7,10 +7,10 @@ tanpa jembatan lintas-framework. iOS ditunda sampai v1 Android terbukti
 memang tidak mungkin di iOS).
 
 Acuan visual: canvas mockup 18 layar di `design/mockups/` — gaya terkunci
-**"Tegas Ceria"**: krem `#F1EFE9`, tinta `#191813`, hijau tua `#174D38`,
-amber `#F0A63A`, Bricolage Grotesque + Amiri, border tebal + hard shadow,
-rail tab vertikal RTL, gamifikasi istiqomah (detail di
-`design/mockups/README.md`).
+**"Tegas Glass"**: krem `#F4F3EE`, tinta `#1C1B16`, hijau `#1E5C44`,
+amber `#F0A63A`, Figtree + Amiri, panel kaca buram (blur) dengan bayangan
+lembut, rail tab vertikal RTL, dock navigasi kaca, gamifikasi istiqomah
+(detail di `design/mockups/README.md`).
 
 ## 1. Ringkasan
 
@@ -91,12 +91,14 @@ Keputusan penting:
 
 - Scaffold proyek (`com.bacakitabgundul.app`), Gradle version catalog,
   Hilt, Navigation Compose.
-- Design token "Tegas Ceria" sebagai tema Compose: `AppColors`
-  (`#F1EFE9`, `#191813`, `#174D38`, `#F0A63A`), `AppTypography`
-  (Bricolage Grotesque + Amiri di `res/font`), bentuk khas sebagai
-  komponen bersama (`ChunkyCard` border 3dp + hard-shadow offset,
-  `PillButton`, `RailTab` vertikal, `StreakBadge`), radius 16–26;
-  `darkColorScheme` disiapkan sejak awal.
+- Design token "Tegas Glass" sebagai tema Compose: `AppColors`
+  (`#F4F3EE`, `#1C1B16`, `#1E5C44`, `#F0A63A`), `AppTypography`
+  (Figtree + Amiri di `res/font`), komponen bersama (`GlassCard` —
+  permukaan translusen + haze/blur via `Modifier.graphicsLayer`/
+  RenderEffect di API 31+, fallback permukaan solid semi-transparan di
+  bawahnya, `PillButton` hijau, `RailTab` vertikal kaca, `GlassDock`
+  navigasi, `StreakBadge`), radius 18–30; `darkColorScheme` disiapkan
+  sejak awal.
 - Komponen bersama: `AppBottomSheet` (grabber + radius 28), `TabPills`,
   `PrimaryButton`, `AsyncView` (loading/error/empty/content).
 - CI GitHub Actions: `lint` + unit test + `assembleDebug`.
@@ -369,6 +371,10 @@ setelah Fase 4–5.
 
 ## Riwayat keputusan
 
+- **v2.4 (26 Agu 2026):** Gaya final "Tegas Glass" — identitas Tegas Ceria
+  dihaluskan ala Apple (panel kaca buram, Figtree sentence case, bayangan
+  lembut) demi keterbacaan & kesan profesional; kartu streak istiqomah
+  di-redesign; keterangan manhaj dihapus dari UI (backend-only, §5b).
 - **v2.3 (26 Agu 2026):** Gaya visual final "Tegas Ceria" (menggantikan
   indigo modern-fun) diterapkan ke seluruh mockup; tambah layar 17–18
   (muroja'ah + rekap streak istiqomah) melengkapi putaran gamifikasi.

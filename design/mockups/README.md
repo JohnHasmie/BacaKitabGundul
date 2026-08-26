@@ -32,19 +32,26 @@ Setiap file `*.dc.html` adalah satu artboard mobile 390×844;
 
 ## Keputusan gaya visual
 
-Gaya visual aplikasi **terkunci pada "Tegas Ceria"** (dipilih 26 Agu 2026,
-menggantikan indigo modern-fun yang dirasa terlalu standar). Seluruh 18
-layar memakai design token ini:
+Gaya visual aplikasi **terkunci pada "Tegas Glass"** (dipilih 26 Agu 2026 —
+penyempurnaan Tegas Ceria: identitas dipertahankan, keterbacaan &
+profesionalisme dinaikkan dengan bahasa kaca ala Apple). Seluruh 18 layar
+memakai design token ini:
 
-- **Warna**: krem `#F1EFE9` (latar) · tinta `#191813` · hijau tua
-  `#174D38` · amber `#F0A63A`
-- **Tipografi**: Bricolage Grotesque (UI, headline tebal) + Amiri (Arab)
-- **Bentuk**: border hitam 3px, hard shadow blok (bukan blur), radius
-  16–26, tile gelap chunky, label huruf kapital berjarak
-- **Penempatan khas**: rail tab vertikal kanan (mengikuti arah baca RTL),
-  nomor halaman Arab raksasa sebagai latar, kartu miring ±1°, aksi utama
-  pill besar bawah-tengah
-- **Gamifikasi**: streak "istiqomah" + sesi muroja'ah + maskot buku
+- **Warna**: krem `#F4F3EE` (latar) · tinta `#1C1B16` · hijau `#1E5C44`
+  (aksi utama) · amber `#F0A63A` (sorotan/streak)
+- **Tipografi**: Figtree (UI, sentence case) + Amiri (Arab, besar & lega);
+  label eyebrow kecil huruf kapital berjarak
+- **Permukaan**: panel kaca buram (`rgba(255,255,255,~0.7)` + backdrop
+  blur 18–26px), garis rambut `rgba(28,27,22,0.1)`, bayangan lembut
+  menyebar — tanpa border tebal & hard shadow
+- **Penempatan khas**: rail tab vertikal kaca di kanan (mengikuti arah
+  baca RTL), nomor halaman Arab raksasa sebagai latar, dock navigasi kaca
+  mengambang, aksi utama pill hijau penuh
+- **Gamifikasi**: streak "istiqomah" (segmen hari dengan penanda hari
+  ini) + sesi muroja'ah + maskot buku
+- **Catatan**: keterangan manhaj/kurasi TIDAK ditampilkan di UI —
+  kebijakan rujukan diterapkan di backend (rencana §5b); UI hanya
+  berlabel "Penjelasan AI" + tombol laporkan
 
 Arah-arah alternatif tersimpan sebagai arsip di halaman canvas
 "Arsip Gaya (Referensi)":
@@ -55,7 +62,8 @@ Arah-arah alternatif tersimpan sebagai arsip di halaman canvas
 | B · Malam Fokus | `GayaMalam.dc.html` | Gelap, kaca & glow ungu — kandidat acuan tema gelap |
 | C · Minimal Editorial | `GayaEditorial.dc.html` | Putih-hitam + aksen bata |
 | D · Teduh | `GayaTeduh.dc.html` | Gading + zaitun + kuningan, tenang |
-| E · Tegas Ceria (sketsa asal) | `GayaTegas.dc.html`, `GayaTegasBeranda.dc.html` | Terpilih — kini diterapkan ke semua layar |
+| E · Tegas Ceria | `GayaTegas.dc.html`, `GayaTegasBeranda.dc.html` | Pendahulu F — border tebal + hard shadow |
+| F · Tegas Glass (sketsa asal) | `HalusBeranda.dc.html`, `HalusAnalisis.dc.html`, `HalusTerjemah.dc.html` | Terpilih — kini diterapkan ke semua layar |
 
 ## Design tokens
 

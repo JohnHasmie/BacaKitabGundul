@@ -7,99 +7,104 @@
 <body>
 <x-dc>
 <helmet>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@500;600;700;800&amp;family=Amiri:wght@400;700&amp;display=swap">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700;800&amp;family=Amiri:wght@400;700&amp;display=swap">
   <style>
-    body { margin: 0; font-family: 'Bricolage Grotesque', 'Segoe UI', system-ui, sans-serif; color: #191813; }
-    a { color: #174D38; } a:hover { color: #0F3626; }
+    body { margin: 0; font-family: 'Figtree', 'Segoe UI', system-ui, sans-serif; color: #1C1B16; }
+    a { color: #1E5C44; } a:hover { color: #14432F; }
   </style>
 </helmet>
-<div style="width: 390px; height: 844px; background: #F1EFE9; display: flex; flex-direction: column; overflow: hidden;">
+<div style="width: 390px; height: 844px; background: #F4F3EE; overflow: hidden; position: relative;">
 
-  <div style="display: flex; flex-direction: column; gap: 13px; padding: 46px 20px 0 20px; flex-grow: 1; overflow: hidden;">
+  <div style="display: flex; flex-direction: column; gap: 14px; padding: 56px 20px 0 20px;">
 
-    <div style="font-size: 28px; font-weight: 800; letter-spacing: -0.02em;">Pengaturan</div>
+    <div style="font-size: 27px; font-weight: 800; letter-spacing: -0.02em;">Pengaturan</div>
 
     <div style="display: flex; flex-direction: column; gap: 8px;">
-      <div style="font-size: 10.5px; font-weight: 800; letter-spacing: 0.12em; color: #6E6A5B;">TAMPILAN BACA</div>
-      <div style="background: #FFFFFF; border: 3px solid #191813; border-radius: 20px; padding: 4px 16px; display: flex; flex-direction: column;">
-        <div style="display: flex; flex-direction: column; gap: 9px; padding: 13px 0; border-bottom: 2px dashed #DDD9CC;">
+      <div style="font-size: 10px; font-weight: 700; letter-spacing: 0.09em; color: #9B9789; text-transform: uppercase; padding-left: 4px;">Tampilan baca</div>
+      <div style="background: rgba(255, 255, 255, 0.72); backdrop-filter: blur(18px); border: 1px solid rgba(28, 27, 22, 0.1); border-radius: 22px; padding: 4px 18px; box-shadow: 0 10px 28px rgba(28, 27, 22, 0.06); display: flex; flex-direction: column;">
+        <div style="display: flex; flex-direction: column; gap: 10px; padding: 14px 0; border-bottom: 1px solid rgba(28, 27, 22, 0.07);">
           <div style="display: flex; align-items: center; justify-content: space-between;">
-            <div style="font-size: 13.5px; font-weight: 800;">Ukuran teks Arab</div>
-            <div dir="rtl" style="font-family: 'Amiri', 'Traditional Arabic', serif; font-size: 23px; color: #174D38;">الكلام</div>
+            <div style="font-size: 14px; font-weight: 600;">Ukuran teks Arab</div>
+            <div dir="rtl" style="font-family: 'Amiri', 'Traditional Arabic', serif; font-size: 23px; color: #1E5C44;">الكلام</div>
           </div>
           <div style="display: flex; align-items: center; gap: 12px;">
-            <span style="font-size: 11px; font-weight: 800; color: #8A8574;">A</span>
-            <div style="flex-grow: 1; height: 8px; background: #F1EFE9; border: 2px solid #191813; border-radius: 5px; position: relative;">
-              <div style="width: 55%; height: 8px; background: #F0A63A; border-radius: 3px;"></div>
-              <div style="position: absolute; left: 55%; top: -7px; width: 22px; height: 22px; margin-left: -11px; border-radius: 11px; background: #F0A63A; border: 3px solid #191813;"></div>
+            <span style="font-size: 11px; font-weight: 700; color: #9B9789;">Aa</span>
+            <div style="flex-grow: 1; height: 5px; border-radius: 3px; background: rgba(28, 27, 22, 0.08); position: relative;">
+              <div style="width: 55%; height: 5px; border-radius: 3px; background: #1E5C44;"></div>
+              <div style="position: absolute; left: 55%; top: -5.5px; width: 16px; height: 16px; margin-left: -8px; border-radius: 8px; background: #FFFFFF; border: 2px solid #1E5C44; box-shadow: 0 2px 6px rgba(28, 27, 22, 0.2);"></div>
             </div>
-            <span style="font-size: 18px; font-weight: 800;">A</span>
+            <span style="font-size: 16px; font-weight: 800;">Aa</span>
           </div>
         </div>
-        <div style="display: flex; align-items: center; justify-content: space-between; padding: 13px 0; min-height: 44px;">
+        <div style="display: flex; align-items: center; justify-content: space-between; padding: 14px 0; min-height: 44px;">
           <div style="display: flex; flex-direction: column; gap: 1px;">
-            <div style="font-size: 13.5px; font-weight: 800;">Transliterasi latin</div>
-            <div style="font-size: 11px; font-weight: 600; color: #6E6A5B;">Tampilkan di jendela analisis</div>
+            <div style="font-size: 14px; font-weight: 600;">Transliterasi latin</div>
+            <div style="font-size: 11.5px; font-weight: 500; color: #9B9789;">Tampilkan di jendela analisis</div>
           </div>
-          <div style="width: 50px; height: 30px; border-radius: 16px; background: #F0A63A; border: 3px solid #191813; display: flex; align-items: center; justify-content: flex-end; padding: 0 2px;">
-            <div style="width: 20px; height: 20px; border-radius: 10px; background: #191813;"></div>
+          <div style="width: 46px; height: 28px; border-radius: 15px; background: #1E5C44; display: flex; align-items: center; justify-content: flex-end; padding: 0 3px;">
+            <div style="width: 22px; height: 22px; border-radius: 11px; background: #FFFFFF; box-shadow: 0 2px 5px rgba(28,27,22,0.2);"></div>
           </div>
         </div>
       </div>
     </div>
 
     <div style="display: flex; flex-direction: column; gap: 8px;">
-      <div style="font-size: 10.5px; font-weight: 800; letter-spacing: 0.12em; color: #6E6A5B;">ASISTEN AI</div>
-      <div style="background: #FFFFFF; border: 3px solid #191813; border-radius: 20px; padding: 4px 16px; display: flex; flex-direction: column;">
-        <div style="display: flex; align-items: center; justify-content: space-between; padding: 13px 0; border-bottom: 2px dashed #DDD9CC; min-height: 44px;">
+      <div style="font-size: 10px; font-weight: 700; letter-spacing: 0.09em; color: #9B9789; text-transform: uppercase; padding-left: 4px;">Asisten AI</div>
+      <div style="background: rgba(255, 255, 255, 0.72); backdrop-filter: blur(18px); border: 1px solid rgba(28, 27, 22, 0.1); border-radius: 22px; padding: 4px 18px; box-shadow: 0 10px 28px rgba(28, 27, 22, 0.06); display: flex; flex-direction: column;">
+        <div style="display: flex; align-items: center; justify-content: space-between; padding: 14px 0; border-bottom: 1px solid rgba(28, 27, 22, 0.07); min-height: 44px;">
           <div style="display: flex; flex-direction: column; gap: 1px; max-width: 190px;">
-            <div style="font-size: 13.5px; font-weight: 800;">Panjang konteks</div>
-            <div style="font-size: 11px; font-weight: 600; line-height: 1.45; color: #6E6A5B;">Kata di sekitar lingkaran yang ikut dibaca</div>
+            <div style="font-size: 14px; font-weight: 600;">Panjang konteks</div>
+            <div style="font-size: 11.5px; font-weight: 500; line-height: 1.45; color: #9B9789;">Kata di sekitar lingkaran yang ikut dibaca</div>
           </div>
           <div style="display: flex; align-items: center; gap: 10px;">
-            <div style="width: 34px; height: 34px; border-radius: 12px; background: #FFFFFF; border: 2.5px solid #191813; display: flex; align-items: center; justify-content: center; font-size: 17px; font-weight: 800;">&#8722;</div>
-            <div style="font-size: 16px; font-weight: 800; color: #174D38;">&#177;5</div>
-            <div style="width: 34px; height: 34px; border-radius: 12px; background: #F0A63A; border: 2.5px solid #191813; display: flex; align-items: center; justify-content: center; font-size: 17px; font-weight: 800;">+</div>
+            <div style="width: 32px; height: 32px; border-radius: 16px; background: rgba(28, 27, 22, 0.06); display: flex; align-items: center; justify-content: center; font-size: 16px; font-weight: 700; color: #6F6B5E;">&#8722;</div>
+            <div style="font-size: 15px; font-weight: 800; color: #1E5C44;">&#177;5</div>
+            <div style="width: 32px; height: 32px; border-radius: 16px; background: rgba(30, 92, 68, 0.12); display: flex; align-items: center; justify-content: center; font-size: 16px; font-weight: 700; color: #1E5C44;">+</div>
           </div>
         </div>
-        <div style="display: flex; align-items: center; justify-content: space-between; padding: 13px 0; min-height: 44px;">
-          <div style="font-size: 13.5px; font-weight: 800;">Bahasa terjemahan</div>
-          <div style="background: #191813; border-radius: 999px; padding: 6px 13px; font-size: 11px; font-weight: 800; color: #F1EFE9;">INDONESIA</div>
+        <div style="display: flex; align-items: center; justify-content: space-between; padding: 14px 0; min-height: 44px;">
+          <div style="font-size: 14px; font-weight: 600;">Bahasa terjemahan</div>
+          <div style="display: flex; align-items: center; gap: 6px;">
+            <div style="font-size: 12.5px; font-weight: 600; color: #6F6B5E;">Indonesia</div>
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#B4B0A2" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m9.5 6 6 6-6 6"></path></svg>
+          </div>
         </div>
       </div>
     </div>
 
     <div style="display: flex; flex-direction: column; gap: 8px;">
-      <div style="font-size: 10.5px; font-weight: 800; letter-spacing: 0.12em; color: #6E6A5B;">LAINNYA</div>
-      <div style="background: #FFFFFF; border: 3px solid #191813; border-radius: 20px; padding: 4px 16px; display: flex; flex-direction: column;">
-        <div style="display: flex; align-items: center; justify-content: space-between; padding: 13px 0; border-bottom: 2px dashed #DDD9CC; min-height: 44px;">
+      <div style="font-size: 10px; font-weight: 700; letter-spacing: 0.09em; color: #9B9789; text-transform: uppercase; padding-left: 4px;">Lainnya</div>
+      <div style="background: rgba(255, 255, 255, 0.72); backdrop-filter: blur(18px); border: 1px solid rgba(28, 27, 22, 0.1); border-radius: 22px; padding: 4px 18px; box-shadow: 0 10px 28px rgba(28, 27, 22, 0.06); display: flex; flex-direction: column;">
+        <div style="display: flex; align-items: center; justify-content: space-between; padding: 14px 0; border-bottom: 1px solid rgba(28, 27, 22, 0.07); min-height: 44px;">
           <div style="display: flex; flex-direction: column; gap: 1px;">
-            <div style="font-size: 13.5px; font-weight: 800;">Bantuan &amp; masukan</div>
-            <div style="font-size: 11px; font-weight: 600; color: #6E6A5B;">Laporkan koreksi atau kirim saran</div>
+            <div style="font-size: 14px; font-weight: 600;">Bantuan &amp; masukan</div>
+            <div style="font-size: 11.5px; font-weight: 500; color: #9B9789;">Laporkan koreksi atau kirim saran</div>
           </div>
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#191813" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="m9.5 6 6 6-6 6"></path></svg>
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#B4B0A2" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m9.5 6 6 6-6 6"></path></svg>
         </div>
-        <div style="display: flex; align-items: center; justify-content: space-between; padding: 13px 0; min-height: 44px;">
-          <div style="font-size: 13.5px; font-weight: 800;">Tentang aplikasi</div>
-          <div style="font-size: 11px; font-weight: 800; color: #8A8574;">v0.1.0</div>
+        <div style="display: flex; align-items: center; justify-content: space-between; padding: 14px 0; min-height: 44px;">
+          <div style="font-size: 14px; font-weight: 600;">Tentang aplikasi</div>
+          <div style="font-size: 12px; font-weight: 600; color: #B4B0A2;">v0.1.0</div>
         </div>
       </div>
     </div>
   </div>
 
-  <div style="display: flex; align-items: center; background: #191813; padding: 12px 14px 24px 14px; gap: 6px;">
-    <div style="flex-grow: 1; display: flex; justify-content: center; padding: 10px 0; min-height: 44px; align-items: center;">
-      <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="#8A8574" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 11.5 12 4.5l8 7V20a1 1 0 0 1-1 1h-4.5v-5.5h-5V21H5a1 1 0 0 1-1-1z"></path></svg>
-    </div>
-    <div style="flex-grow: 1; display: flex; justify-content: center; padding: 10px 0; min-height: 44px; align-items: center;">
-      <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="#8A8574" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 5A1.5 1.5 0 0 1 6 3.5h13.5v14H6A1.5 1.5 0 0 0 4.5 19z"></path><path d="M4.5 19V5"></path></svg>
-    </div>
-    <div style="flex-grow: 1; display: flex; justify-content: center; padding: 10px 0; min-height: 44px; align-items: center;">
-      <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="#8A8574" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 4.5h10V20l-5-3.8L7 20z"></path></svg>
-    </div>
-    <div style="flex-grow: 1; display: flex; align-items: center; justify-content: center; gap: 7px; background: #F0A63A; border-radius: 999px; padding: 10px 0; min-height: 44px;">
-      <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#191813" stroke-width="2.4" stroke-linecap="round"><circle cx="12" cy="12" r="3.2"></circle><path d="M12 2.8v2.8M12 18.4v2.8M2.8 12h2.8M18.4 12h2.8M5.5 5.5l2 2M16.5 16.5l2 2M5.5 18.5l2-2M16.5 7.5l2-2"></path></svg>
-      <div style="font-size: 12px; font-weight: 800;">ATUR</div>
+  <div style="position: absolute; left: 0; right: 0; bottom: 24px; display: flex; justify-content: center;">
+    <div style="display: flex; align-items: center; gap: 4px; background: rgba(255, 255, 255, 0.72); backdrop-filter: blur(24px); border: 1px solid rgba(28, 27, 22, 0.1); border-radius: 999px; padding: 8px; box-shadow: 0 14px 40px rgba(28, 27, 22, 0.14);">
+      <div style="width: 44px; height: 44px; display: flex; align-items: center; justify-content: center;">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#9B9789" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 11.5 12 4.5l8 7V20a1 1 0 0 1-1 1h-4.5v-5.5h-5V21H5a1 1 0 0 1-1-1z"></path></svg>
+      </div>
+      <div style="width: 44px; height: 44px; display: flex; align-items: center; justify-content: center;">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#9B9789" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 5A1.5 1.5 0 0 1 6 3.5h13.5v14H6A1.5 1.5 0 0 0 4.5 19z"></path><path d="M4.5 19V5"></path></svg>
+      </div>
+      <div style="width: 44px; height: 44px; display: flex; align-items: center; justify-content: center;">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#9B9789" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 4.5h10V20l-5-3.8L7 20z"></path></svg>
+      </div>
+      <div style="display: flex; align-items: center; gap: 7px; background: #1E5C44; border-radius: 999px; padding: 11px 18px;">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="2.2" stroke-linecap="round"><circle cx="12" cy="12" r="3.2"></circle><path d="M12 2.8v2.8M12 18.4v2.8M2.8 12h2.8M18.4 12h2.8M5.5 5.5l2 2M16.5 16.5l2 2M5.5 18.5l2-2M16.5 7.5l2-2"></path></svg>
+        <div style="font-size: 12px; font-weight: 700; color: #FFFFFF;">Atur</div>
+      </div>
     </div>
   </div>
 </div>
