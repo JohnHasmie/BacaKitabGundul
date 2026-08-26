@@ -276,6 +276,10 @@ secara teknis, bukan sekadar niat:
 5. **Tinjauan berkala ustadz**: sampel keluaran wawasan & faidah ditinjau
    ustadz pembina tiap siklus rilis (digabung dengan uji 50 frasa emas).
 
+Catatan (26 Agu 2026): kebijakan ini **diterapkan sepenuhnya di backend**
+dan tidak ditampilkan sebagai keterangan di UI aplikasi — di UI hanya ada
+label "Penjelasan AI" dan tombol laporkan.
+
 ## 6. Skema Data Lokal (Room)
 
 - `kitab(id, judul, pathFile, jmlHalaman, halamanTerakhir, coverPath, dibuat)`
