@@ -27,6 +27,19 @@ Setiap file `*.dc.html` adalah satu artboard mobile 390×844;
 | 14 | `LingkariGlobal.dc.html` | Frame beku + lingkari di app PDF lain, kartu "kitab terdeteksi" |
 | 15 | `DeteksiQuran.dc.html` | Popup deteksi ayat — teks dicocokkan dengan mushaf resmi, tab Arti |
 
+## Keputusan gaya visual
+
+Gaya visual aplikasi **terkunci pada indigo modern-fun** (primer `#6C5CE7`,
+aksen `#FDCB6E`, Plus Jakarta Sans + Amiri) — dipilih 26 Agu 2026 setelah
+membandingkan tiga arah alternatif. Ketiga alternatif disimpan sebagai
+arsip referensi di halaman canvas "Arsip Gaya (Referensi)":
+
+| Arsip | File | Catatan |
+| ----- | ---- | ------- |
+| A · Manuskrip Klasik | `GayaKlasik.dc.html` | Krem, hijau tua + emas, serif |
+| B · Malam Fokus | `GayaMalam.dc.html` | Gelap, kaca & glow ungu — kandidat acuan tema gelap |
+| C · Minimal Editorial | `GayaEditorial.dc.html` | Putih-hitam + aksen bata |
+
 ## Design tokens
 
 - Primer `#6C5CE7` (indigo), aksen `#FDCB6E` (kuning hangat),

@@ -1,7 +1,7 @@
 {
   "pages": [
     { "id": "page-app", "name": "Mockup Aplikasi" },
-    { "id": "page-gaya", "name": "Pilihan Gaya Visual" }
+    { "id": "page-gaya", "name": "Arsip Gaya (Referensi)" }
   ],
   "artboards": [
     { "file": "Onboarding.dc.html", "title": "1 · Onboarding", "x": 0, "y": 0, "w": 390, "h": 844, "page": "page-app" },
@@ -27,7 +27,7 @@
     { "id": "alur-utama", "x": 0, "y": -150, "w": 640, "page": "page-app", "text": "Alur utama (kiri ke kanan): onboarding → beranda → tambah kitab → baca kitab → tekan tombol AI mengambang → lingkari kata yang ingin dipelajari.\nEfek glow tepi layar meniru gaya Galaxy AI: layar meredup, tepi menyala gradien." },
     { "id": "baris-hasil", "x": 0, "y": 1900, "w": 640, "page": "page-app", "text": "Baris kedua: hasil analisis muncul sebagai bottom sheet bertab (Cara Baca / I'rob / Shorof / Arti) — AI membaca ±5 kata sebelum & sesudah lingkaran sebagai konteks (kata konteks di-highlight kuning di layar 6).\nLayar 9: mode terjemah per kata — arti Indonesia tersusun di bawah tiap kata Arab." },
     { "id": "mode-global", "x": 700, "y": 1900, "w": 640, "page": "page-app", "text": "Baris ketiga — MODE GLOBAL: bubble mengambang di atas aplikasi APA PUN (Qur'an digital, pembaca PDF lain, browser). Ditekan → layar dibekukan lewat tangkapan layar → lingkari di frame beku → potongan gambar + konteks dikirim ke AI multimodal.\nAI otomatis mendeteksi judul kitab & halaman (layar 14); teks Al-Qur'an dicocokkan dengan mushaf resmi (layar 15). Layar 12: dua izin Android yang dibutuhkan." },
-    { "id": "pilih-gaya", "x": 0, "y": 3180, "w": 900, "page": "page-gaya", "text": "Tiga arah gaya visual — layar contoh yang sama (reader + lingkaran + popup analisis) supaya mudah dibandingkan. Gaya saat ini (indigo modern-fun) tetap dipakai di halaman \"Mockup Aplikasi\".\nA · Manuskrip Klasik: kertas krem, hijau tua + emas, serif — hangat & berwibawa seperti kitab cetak. B · Malam Fokus: gelap, kaca & glow ungu — nyaman untuk mengaji malam, kesan tech. C · Minimal Editorial: putih-hitam tegas + aksen bata, tipografi kuat — bersih & fokus penuh ke teks.\nPilih satu (atau kombinasi, mis. B sebagai tema gelapnya A) — seluruh 15 layar akan disesuaikan ke gaya terpilih." }
+    { "id": "pilih-gaya", "x": 0, "y": 3180, "w": 900, "page": "page-gaya", "text": "KEPUTUSAN: gaya visual aplikasi tetap indigo modern-fun (lihat halaman \"Mockup Aplikasi\") — dipilih 26 Agu 2026.\nTiga arah alternatif di bawah disimpan sebagai arsip referensi: A · Manuskrip Klasik (krem, hijau tua + emas, serif), B · Malam Fokus (gelap, kaca & glow ungu — kandidat acuan untuk tema gelap nanti), C · Minimal Editorial (putih-hitam + aksen bata)." }
   ],
-  "launch": { "view": "canvas", "page": "page-gaya" }
+  "launch": { "view": "canvas", "page": "page-app" }
 }
