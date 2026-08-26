@@ -26,6 +26,7 @@ Setiap file `*.dc.html` adalah satu artboard mobile 390×844;
 | 13 | `BubbleGlobal.dc.html` | Bubble mengambang di atas aplikasi lain (contoh: Qur'an digital) |
 | 14 | `LingkariGlobal.dc.html` | Frame beku + lingkari di app PDF lain, kartu "kitab terdeteksi" |
 | 15 | `DeteksiQuran.dc.html` | Popup deteksi ayat — teks dicocokkan dengan mushaf resmi, tab Arti |
+| 16 | `AnalisisWawasan.dc.html` | Tab Wawasan — keluarga kata, di Al-Qur'an (tervalidasi), fun fact, referensi silang kitab (rujukan terkurasi Ahlus Sunnah) |
 
 ## Keputusan gaya visual
 

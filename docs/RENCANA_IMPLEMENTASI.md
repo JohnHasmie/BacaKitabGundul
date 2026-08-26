@@ -131,6 +131,31 @@ Keputusan penting:
 - Cache per halaman (hash gambar); tombol "terjemahkan halaman" eksplisit
   — bukan otomatis — agar biaya terkendali.
 
+### Fase 3b — Wawasan & referensi silang (layar 16) (±3 hari)
+
+- Tab kelima **"Wawasan"** di bottom sheet analisis, berisi kartu:
+  - **Keluarga kata** — derivasi populer dari akar yang sama (memperluas
+    kosakata; melengkapi tab Shorof).
+  - **Di Al-Qur'an** — jumlah kemunculan akar + contoh ayat berharakat.
+    **Setiap kutipan divalidasi backend ke dataset mushaf kanonik**
+    sebelum tampil — AI mengusulkan, backend memverifikasi; kutipan yang
+    gagal validasi dibuang.
+  - **Tahukah kamu** — fun fact, termasuk kata serapan Indonesia
+    (كتاب → "kitab", لفظ → "lafal").
+  - **Faidah** — catatan nahwu/balaghah kontekstual, berlabel
+    "penjelasan AI".
+  - **Referensi silang kitab** — "topik ini dibahas juga di …" menunjuk
+    kitab lain yang membahas bab yang sama (mis. dari Jurumiyah →
+    Mutammimah, Qatrun Nada, Alfiyah). Hanya boleh menunjuk kitab dari
+    daftar rujukan terkurasi (§5b). Kelak: bila kitab rujukan ada di
+    perpustakaan pengguna, tautan langsung membuka halamannya.
+- **Lazy-load**: konten diminta via `POST /enrich` hanya saat tab dibuka —
+  latensi & biaya popup utama tidak bertambah.
+- **Cache per akar kata, global lintas pengguna** di backend: wawasan akar
+  ك-ت-ب dihasilkan sekali, semua pengguna berikutnya membaca dari cache.
+- **Verifikasi:** 15 kata uji — 100% kutipan Qur'an lolos validasi mushaf,
+  referensi silang hanya dari daftar kurasi, fun fact dicek manual.
+
 ### Fase 4 — Mode global (layar 12–15) (±2 minggu)
 
 *(Lebih singkat dari rencana v1 — tidak ada lagi jembatan Flutter↔native.)*
@@ -188,6 +213,18 @@ POST /v1/page-translate
   body : { image: <jpeg halaman penuh>, kitabContext? }
   hasil: { baris: [ { kata: [ { arab, gloss, bbox } ] } ] }
 
+POST /v1/enrich                       // dipanggil lazy saat tab Wawasan dibuka
+  body : { kata, akarKata?, konteksKalimat?, kitabContext? }
+  hasil: { keluargaKata: [ { arab, harakat, arti } ],
+           quran: { jumlahKemunculanAkar,
+                    contoh: [ { surah, ayat, potongan, terjemah } ] },
+                    // ↑ divalidasi ke dataset mushaf sebelum dikirim
+           tahukahKamu?, faidah?,
+           referensiSilang: [ { kitab, bagian, keterangan } ],
+                    // ↑ hanya kitab dari daftar rujukan terkurasi (§5b)
+           }
+  cache : per akarKata — global lintas pengguna (dihasilkan sekali)
+
 POST /v1/detect
   body : { image: <jpeg layar/halaman penuh> }
   hasil: { jenis: "kitab" | "quran" | "lainnya",
@@ -202,6 +239,34 @@ mempertimbangkan ±5 kata sebelum dan sesudah pada gambar"; untuk
 `jenis: "quran"` teks kanonik dari dataset ikut dikirim sehingga model
 menyelaraskan, bukan menebak.
 
+### 5b. Kebijakan konten keagamaan (manhaj rujukan)
+
+Seluruh kandungan keagamaan yang dihasilkan aplikasi mengikuti **Ahlus
+Sunnah wal Jama'ah dengan pemahaman salafush-shalih**. Ini diterapkan
+secara teknis, bukan sekadar niat:
+
+1. **Sistem prompt** semua endpoint menegaskan manhaj rujukan dan melarang
+   mengutip pendapat di luar rujukan mu'tabar Ahlus Sunnah.
+2. **Daftar putih kitab rujukan terkurasi** per bidang, disimpan sebagai
+   konfigurasi backend yang dikelola pemilik produk (bisa diperbarui tanpa
+   rilis aplikasi). Contoh awal — final ditetapkan pemilik produk bersama
+   ustadz pembina:
+   - Nahwu/shorof: Al-Ajurumiyyah, Mutammimah, Qatrun Nada, Alfiyah Ibnu
+     Malik beserta syarah mu'tabar-nya.
+   - Tafsir: Tafsir Ibnu Katsir, Tafsir As-Sa'di.
+   - Hadits: kutubus sittah dengan syarah mu'tabar.
+   - Aqidah & fiqih: kitab-kitab rujukan salaf yang ditetapkan pembina.
+   Kartu **referensi silang** dan **faidah** hanya boleh menunjuk/mengutip
+   dari daftar ini.
+3. **Validasi kutipan**: ayat dicek ke dataset mushaf; kutipan hadits
+   (bila kelak ditampilkan) dicek ke korpus hadits sebelum tampil —
+   yang tidak terverifikasi dibuang, bukan "dikira-kira".
+4. **Kejujuran ke pengguna**: konten hasil AI berlabel "penjelasan AI",
+   dan ada tombol **"laporkan koreksi"** di tiap kartu wawasan — laporan
+   masuk ke antrean tinjauan.
+5. **Tinjauan berkala ustadz**: sampel keluaran wawasan & faidah ditinjau
+   ustadz pembina tiap siklus rilis (digabung dengan uji 50 frasa emas).
+
 ## 6. Skema Data Lokal (Room)
 
 - `kitab(id, judul, pathFile, jmlHalaman, halamanTerakhir, coverPath, dibuat)`
@@ -210,6 +275,8 @@ menyelaraskan, bukan menebak.
 - `cache_analisis(kunciHash, responsJson, dibuat)` — kunci =
   sha256(kitabId|halaman|bboxNormalisasi) atau sha256(gambar) di mode global
 - `cache_halaman_terjemah(kitabId, halaman, responsJson, dibuat)`
+- `cache_wawasan(akarKata, responsJson, dibuat)` — salinan lokal dari
+  cache global backend
 - Preferensi (ukuran font, transliterasi, panjang konteks, tema) di
   DataStore.
 
@@ -223,6 +290,7 @@ Bawaan: **`claude-opus-5`** — kualitas penalaran nahwu/i'rob terbaik
 | Analisis lingkaran (crop kecil + JSON) | ~1.500 masuk / ~700 keluar | ± $0,025 |
 | Terjemah 1 halaman penuh | ~2.000 masuk / ~2.500 keluar | ± $0,07 |
 | Deteksi kitab (1× per sesi/app) | ~1.800 masuk / ~150 keluar | ± $0,013 |
+| Wawasan per akar kata (1× seumur hidup, global) | ~1.200 masuk / ~900 keluar | ± $0,03 sekali → gratis untuk semua pengguna berikutnya |
 
 Cache analisis lokal + cache backend menekan pemakaian ulang menjadi $0.
 Bila biaya per pengguna perlu ditekan (keputusan pemilik produk, bukan
@@ -241,16 +309,18 @@ analisis i'rob. Prompt caching memangkas biaya sistem prompt berulang.
 | Biaya AI membengkak | Kuota harian, cache dua lapis, terjemah halaman eksplisit, pilihan model per endpoint |
 | iOS belum tergarap | Disengaja: v1 fokus Android; iOS menyusul sebagai app Swift kecil (reader + Share Extension) setelah produk terbukti |
 | Bubble dimatikan battery saver (OEM tertentu) | Foreground service + panduan whitelist per merek di layar 12 |
+| Konten keagamaan keliru / di luar manhaj | Kebijakan §5b: daftar putih kitab, validasi kutipan ke korpus, label "penjelasan AI", tombol laporkan, tinjauan ustadz berkala |
 
 ## 9. Urutan Pengerjaan & Perkiraan Waktu
 
-Total ± 8–8,5 minggu efektif (1 pengembang + peninjau):
+Total ± 9 minggu efektif (1 pengembang + peninjau):
 
 1. Fase 0 (3 hari) → 2. Fase 1 (1,5 mgg) → 3. Fase 2 (2 mgg) →
-4. Fase 3 (1 mgg) → 5. Fase 4 (2 mgg) → 6. Fase 5 (1,5 mgg)
+4. Fase 3 (1 mgg) → 5. Fase 3b (3 hari) → 6. Fase 4 (2 mgg) →
+7. Fase 5 (1,5 mgg)
 
 Rilis bertahap: **v0.1 internal** setelah Fase 2 (reader + analisis
-lingkaran — nilai inti sudah terasa), **v0.2** setelah Fase 3, **v1.0**
+lingkaran — nilai inti sudah terasa), **v0.2** setelah Fase 3–3b, **v1.0**
 setelah Fase 4–5.
 
 ## 10. Verifikasi Menyeluruh
@@ -263,6 +333,11 @@ setelah Fase 4–5.
 
 ## Riwayat keputusan
 
+- **v2.1 (26 Agu 2026):** Tambah fitur Wawasan (tab kelima: keluarga kata,
+  kemunculan di Al-Qur'an tervalidasi, fun fact, faidah, referensi silang
+  antar kitab) + kebijakan konten §5b: seluruh rujukan keagamaan mengikuti
+  Ahlus Sunnah wal Jama'ah dengan pemahaman salaf, ditegakkan lewat daftar
+  putih kitab terkurasi dan validasi kutipan.
 - **v2 (26 Agu 2026):** Kotlin-only Android (Jetpack Compose) — dipilih
   karena fitur pembeda (mode global) sepenuhnya wilayah native dan
   menghapus jembatan lintas-framework; iOS ditunda pasca-v1.
