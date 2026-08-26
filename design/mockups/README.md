@@ -27,19 +27,35 @@ Setiap file `*.dc.html` adalah satu artboard mobile 390×844;
 | 14 | `LingkariGlobal.dc.html` | Frame beku + lingkari di app PDF lain, kartu "kitab terdeteksi" |
 | 15 | `DeteksiQuran.dc.html` | Popup deteksi ayat — teks dicocokkan dengan mushaf resmi, tab Arti |
 | 16 | `AnalisisWawasan.dc.html` | Tab Wawasan — keluarga kata, di Al-Qur'an (tervalidasi), fun fact, referensi silang kitab (rujukan terkurasi Ahlus Sunnah) |
+| 17 | `Murojaah.dc.html` | Sesi muroja'ah harian — flashcard kata tersimpan (Ingat / Masih Lupa) |
+| 18 | `MurojaahSelesai.dc.html` | Rekap muroja'ah — perayaan, streak istiqomah +1, kata lupa dijadwalkan besok |
 
 ## Keputusan gaya visual
 
-Gaya visual aplikasi **terkunci pada indigo modern-fun** (primer `#6C5CE7`,
-aksen `#FDCB6E`, Plus Jakarta Sans + Amiri) — dipilih 26 Agu 2026 setelah
-membandingkan tiga arah alternatif. Ketiga alternatif disimpan sebagai
-arsip referensi di halaman canvas "Arsip Gaya (Referensi)":
+Gaya visual aplikasi **terkunci pada "Tegas Ceria"** (dipilih 26 Agu 2026,
+menggantikan indigo modern-fun yang dirasa terlalu standar). Seluruh 18
+layar memakai design token ini:
+
+- **Warna**: krem `#F1EFE9` (latar) · tinta `#191813` · hijau tua
+  `#174D38` · amber `#F0A63A`
+- **Tipografi**: Bricolage Grotesque (UI, headline tebal) + Amiri (Arab)
+- **Bentuk**: border hitam 3px, hard shadow blok (bukan blur), radius
+  16–26, tile gelap chunky, label huruf kapital berjarak
+- **Penempatan khas**: rail tab vertikal kanan (mengikuti arah baca RTL),
+  nomor halaman Arab raksasa sebagai latar, kartu miring ±1°, aksi utama
+  pill besar bawah-tengah
+- **Gamifikasi**: streak "istiqomah" + sesi muroja'ah + maskot buku
+
+Arah-arah alternatif tersimpan sebagai arsip di halaman canvas
+"Arsip Gaya (Referensi)":
 
 | Arsip | File | Catatan |
 | ----- | ---- | ------- |
 | A · Manuskrip Klasik | `GayaKlasik.dc.html` | Krem, hijau tua + emas, serif |
 | B · Malam Fokus | `GayaMalam.dc.html` | Gelap, kaca & glow ungu — kandidat acuan tema gelap |
 | C · Minimal Editorial | `GayaEditorial.dc.html` | Putih-hitam + aksen bata |
+| D · Teduh | `GayaTeduh.dc.html` | Gading + zaitun + kuningan, tenang |
+| E · Tegas Ceria (sketsa asal) | `GayaTegas.dc.html`, `GayaTegasBeranda.dc.html` | Terpilih — kini diterapkan ke semua layar |
 
 ## Design tokens
 

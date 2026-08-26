@@ -7,53 +7,41 @@
 <body>
 <x-dc>
 <helmet>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;family=Amiri:wght@400;700&amp;display=swap">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@500;600;700;800&amp;family=Amiri:wght@400;700&amp;display=swap">
   <style>
-    body { margin: 0; font-family: 'Plus Jakarta Sans', 'Segoe UI', system-ui, sans-serif; color: #241E38; }
-    a { color: #6C5CE7; } a:hover { color: #5546C8; }
-    @keyframes glowPulse { 0%, 100% { opacity: 0.85; } 50% { opacity: 1; } }
+    body { margin: 0; font-family: 'Bricolage Grotesque', 'Segoe UI', system-ui, sans-serif; color: #191813; }
+    a { color: #174D38; } a:hover { color: #0F3626; }
+    @keyframes pulseFrame { 0%, 100% { opacity: 0.8; } 50% { opacity: 1; } }
   </style>
 </helmet>
-<div style="width: 390px; height: 844px; background: #FDFBF5; display: flex; flex-direction: column; overflow: hidden; position: relative;">
+<div style="width: 390px; height: 844px; background: #F1EFE9; overflow: hidden; position: relative;">
 
-  <div style="display: flex; align-items: center; gap: 12px; padding: 40px 16px 12px 16px; border-bottom: 1px solid #F0EBDD; opacity: 0.45;">
-    <div style="width: 44px; height: 44px; display: flex; align-items: center; justify-content: center;">
-      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#241E38" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 5.5 8 12l6.5 6.5"></path></svg>
-    </div>
-    <div style="flex-grow: 1; display: flex; flex-direction: column; gap: 1px;">
-      <div style="font-size: 15px; font-weight: 800;">Matan Al-Ajurumiyyah</div>
-      <div style="font-size: 12px; color: #7A7490;">Bab Kalam &#183; Hal. 12 / 40</div>
-    </div>
-  </div>
+  <div style="position: absolute; inset: 8px; border: 6px solid #F0A63A; border-radius: 28px; pointer-events: none; animation: pulseFrame 2s ease-in-out infinite; box-shadow: 0 0 0 3px #191813 inset, 0 0 40px rgba(240, 166, 58, 0.4);"></div>
 
-  <div style="flex-grow: 1; padding: 30px 22px; display: flex; flex-direction: column; gap: 26px; overflow: hidden;">
-
-    <div dir="rtl" style="font-family: 'Amiri', 'Traditional Arabic', serif; font-size: 27px; line-height: 2.35; color: #2E2A20; text-align: right;">
-      <span style="background: #FFF1CC; border-radius: 8px; padding: 1px 5px; border-bottom: 2px dotted #E0A400;">&#1575;&#1604;&#1603;&#1604;&#1575;&#1605; &#1607;&#1608;</span>
-      <span style="position: relative; padding: 2px 8px; white-space: nowrap;">&#1575;&#1604;&#1604;&#1601;&#1592; &#1575;&#1604;&#1605;&#1585;&#1603;&#1576;<svg width="196" height="76" viewBox="0 0 196 76" fill="none" style="position: absolute; left: -16px; top: -14px; overflow: visible;"><ellipse cx="98" cy="38" rx="90" ry="30" stroke="#6C5CE7" stroke-width="4" stroke-linecap="round" stroke-dasharray="360 60" transform="rotate(-4 98 38)" style="filter: drop-shadow(0 0 8px rgba(108, 92, 231, 0.55));"></ellipse><circle cx="14" cy="20" r="13" fill="rgba(108, 92, 231, 0.28)"></circle><circle cx="14" cy="20" r="5" fill="#6C5CE7"></circle></svg></span>
-      <span style="background: #FFF1CC; border-radius: 8px; padding: 1px 5px; border-bottom: 2px dotted #E0A400;">&#1575;&#1604;&#1605;&#1601;&#1610;&#1583; &#1576;&#1575;&#1604;&#1608;&#1590;&#1593;</span>&#1548;
-      <span style="opacity: 0.55;">&#1608;&#1571;&#1602;&#1587;&#1575;&#1605;&#1607; &#1579;&#1604;&#1575;&#1579;&#1577;&#1563; &#1575;&#1587;&#1605; &#1608;&#1601;&#1593;&#1604; &#1608;&#1581;&#1585;&#1601; &#1580;&#1575;&#1569; &#1604;&#1605;&#1593;&#1606;&#1609;. &#1601;&#1575;&#1604;&#1575;&#1587;&#1605; &#1610;&#1593;&#1585;&#1601; &#1576;&#1575;&#1604;&#1582;&#1601;&#1590; &#1608;&#1575;&#1604;&#1578;&#1606;&#1608;&#1610;&#1606; &#1608;&#1583;&#1582;&#1608;&#1604; &#1575;&#1604;&#1571;&#1604;&#1601; &#1608;&#1575;&#1604;&#1604;&#1575;&#1605;&#1548; &#1608;&#1581;&#1585;&#1608;&#1601; &#1575;&#1604;&#1582;&#1601;&#1590; &#1608;&#1607;&#1610; &#1605;&#1606; &#1608;&#1573;&#1604;&#1609; &#1608;&#1593;&#1606; &#1608;&#1593;&#1604;&#1609; &#1608;&#1601;&#1610; &#1608;&#1585;&#1576;.</span>
-    </div>
-
-    <div style="display: flex; flex-direction: column; gap: 10px; margin-top: 8px;">
-      <div style="display: flex; align-items: center; gap: 8px; align-self: flex-start; background: #FFFFFF; border: 1px solid #F0E3BC; border-radius: 999px; padding: 9px 14px;">
-        <div style="width: 14px; height: 14px; border-radius: 5px; background: #FFF1CC; border-bottom: 2px dotted #E0A400;"></div>
-        <div style="font-size: 12px; font-weight: 600; color: #7A6A35;">Konteks yang ikut dibaca AI (&#177;5 kata)</div>
-      </div>
-      <div style="display: flex; align-items: center; gap: 8px; align-self: flex-start; background: #FFFFFF; border: 1px solid #E9E5F5; border-radius: 999px; padding: 9px 14px;">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><ellipse cx="12" cy="12" rx="10" ry="7" stroke="#6C5CE7" stroke-width="2.5" stroke-dasharray="34 8"></ellipse></svg>
-        <div style="font-size: 12px; font-weight: 600; color: #5546C8;">Pilihanmu: <span dir="rtl" style="font-family: 'Amiri', serif; font-size: 15px;">&#1575;&#1604;&#1604;&#1601;&#1592; &#1575;&#1604;&#1605;&#1585;&#1603;&#1576;</span></div>
-      </div>
+  <div style="position: absolute; left: 0; right: 0; top: 52px; display: flex; justify-content: center;">
+    <div style="display: flex; align-items: center; gap: 8px; background: #191813; border-radius: 999px; padding: 10px 18px; box-shadow: 3px 4px 0 #F0A63A;">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="#F0A63A"><path d="M12 3l1.9 5.1L19 10l-5.1 1.9L12 17l-1.9-5.1L5 10l5.1-1.9z"></path></svg>
+      <div style="font-size: 11.5px; font-weight: 800; color: #F1EFE9; letter-spacing: 0.05em;">AI MEMBACA KONTEKS &#177;5 KATA</div>
     </div>
   </div>
 
-  <div style="position: absolute; inset: 0; pointer-events: none; box-shadow: inset 0 0 70px rgba(108, 92, 231, 0.4), inset 0 0 140px rgba(197, 108, 240, 0.22); animation: glowPulse 2.4s ease-in-out infinite;"></div>
-  <div style="position: absolute; inset: 5px; pointer-events: none; border-radius: 24px; border: 3px solid transparent; background: linear-gradient(rgba(255,255,255,0), rgba(255,255,255,0)) padding-box, conic-gradient(from 210deg, #6C5CE7, #C56CF0, #FDCB6E, #56C7E8, #6C5CE7) border-box; animation: glowPulse 2.4s ease-in-out infinite;"></div>
+  <div style="position: absolute; left: 26px; right: 26px; top: 168px;">
+    <div dir="rtl" style="font-family: 'Amiri', 'Traditional Arabic', serif; font-size: 28px; line-height: 2.45; color: #191813; text-align: right;">
+      <span style="border-bottom: 4px dotted #191813; padding-bottom: 1px;">&#1575;&#1604;&#1603;&#1604;&#1575;&#1605; &#1607;&#1608;</span>
+      <span style="position: relative; padding: 3px 10px; white-space: nowrap;"><span style="background: #F0A63A; border-radius: 12px; padding: 3px 8px;">&#1575;&#1604;&#1604;&#1601;&#1592; &#1575;&#1604;&#1605;&#1585;&#1603;&#1576;</span><svg width="204" height="78" viewBox="0 0 204 78" fill="none" style="position: absolute; left: -15px; top: -14px; overflow: visible;"><ellipse cx="102" cy="39" rx="94" ry="31" stroke="#191813" stroke-width="5" stroke-linecap="round" stroke-dasharray="372 62" transform="rotate(-4 102 39)"></ellipse><circle cx="18" cy="20" r="11" fill="rgba(240, 166, 58, 0.45)"></circle><circle cx="18" cy="20" r="4.5" fill="#191813"></circle></svg></span>
+      <span style="border-bottom: 4px dotted #191813; padding-bottom: 1px;">&#1575;&#1604;&#1605;&#1601;&#1610;&#1583; &#1576;&#1575;&#1604;&#1608;&#1590;&#1593;</span>&#1548;
+      <span style="color: #B5B0A0;">&#1608;&#1571;&#1602;&#1587;&#1575;&#1605;&#1607; &#1579;&#1604;&#1575;&#1579;&#1577;&#1563; &#1575;&#1587;&#1605; &#1608;&#1601;&#1593;&#1604; &#1608;&#1581;&#1585;&#1601; &#1580;&#1575;&#1569; &#1604;&#1605;&#1593;&#1606;&#1609;.</span>
+    </div>
+    <div style="display: flex; align-items: center; gap: 10px; margin-top: 22px;">
+      <div style="background: #FFFFFF; border: 2.5px solid #191813; border-radius: 999px; padding: 6px 13px; font-size: 11px; font-weight: 800;">PILIHANMU: <span dir="rtl" style="font-family: 'Amiri', serif; font-size: 14px; font-weight: 700;">&#1575;&#1604;&#1604;&#1601;&#1592; &#1575;&#1604;&#1605;&#1585;&#1603;&#1576;</span></div>
+      <div style="background: #F0A63A; border: 2.5px solid #191813; border-radius: 999px; padding: 6px 13px; font-size: 11px; font-weight: 800;">+ KONTEKS</div>
+    </div>
+  </div>
 
-  <div style="position: absolute; left: 0; right: 0; bottom: 34px; display: flex; justify-content: center;">
-    <div style="display: flex; align-items: center; gap: 10px; background: #241E38; border-radius: 999px; padding: 13px 20px; box-shadow: 0 12px 30px rgba(36, 30, 56, 0.35);">
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="#FDCB6E" style="animation: glowPulse 1.2s ease-in-out infinite;"><path d="M12 3l1.9 5.1L19 10l-5.1 1.9L12 17l-1.9-5.1L5 10l5.1-1.9z"></path></svg>
-      <div style="font-size: 13px; font-weight: 600; color: #FFFFFF;">Menganalisis dengan konteks kalimat&#8230;</div>
+  <div style="position: absolute; left: 0; right: 0; bottom: 40px; display: flex; justify-content: center;">
+    <div style="display: flex; align-items: center; gap: 10px; background: #191813; border-radius: 999px; padding: 13px 24px; box-shadow: 4px 5px 0 #174D38;">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="#F0A63A" style="animation: pulseFrame 1.1s ease-in-out infinite;"><path d="M12 3l1.9 5.1L19 10l-5.1 1.9L12 17l-1.9-5.1L5 10l5.1-1.9z"></path></svg>
+      <div style="font-size: 13px; font-weight: 800; color: #F1EFE9; letter-spacing: 0.04em;">MENGANALISIS&#8230;</div>
     </div>
   </div>
 </div>

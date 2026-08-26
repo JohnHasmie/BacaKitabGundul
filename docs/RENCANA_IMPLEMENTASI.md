@@ -6,8 +6,11 @@ tanpa jembatan lintas-framework. iOS ditunda sampai v1 Android terbukti
 (nantinya app Swift kecil terbatas: reader + Share Extension — mode global
 memang tidak mungkin di iOS).
 
-Acuan visual: canvas mockup 15 layar di `design/mockups/` (gaya terkunci:
-indigo modern-fun, `#6C5CE7` + `#FDCB6E`, Plus Jakarta Sans + Amiri).
+Acuan visual: canvas mockup 18 layar di `design/mockups/` — gaya terkunci
+**"Tegas Ceria"**: krem `#F1EFE9`, tinta `#191813`, hijau tua `#174D38`,
+amber `#F0A63A`, Bricolage Grotesque + Amiri, border tebal + hard shadow,
+rail tab vertikal RTL, gamifikasi istiqomah (detail di
+`design/mockups/README.md`).
 
 ## 1. Ringkasan
 
@@ -88,10 +91,12 @@ Keputusan penting:
 
 - Scaffold proyek (`com.bacakitabgundul.app`), Gradle version catalog,
   Hilt, Navigation Compose.
-- Design token dari mockup sebagai tema Compose: `AppColors` (`#6C5CE7`,
-  `#FDCB6E`, skala slate), `AppTypography` (Plus Jakarta Sans + Amiri di
-  `res/font`), spacing xs–xl, radius 14/18/24; dukungan `darkColorScheme`
-  disiapkan sejak awal (acuan arsip "Gaya Malam").
+- Design token "Tegas Ceria" sebagai tema Compose: `AppColors`
+  (`#F1EFE9`, `#191813`, `#174D38`, `#F0A63A`), `AppTypography`
+  (Bricolage Grotesque + Amiri di `res/font`), bentuk khas sebagai
+  komponen bersama (`ChunkyCard` border 3dp + hard-shadow offset,
+  `PillButton`, `RailTab` vertikal, `StreakBadge`), radius 16–26;
+  `darkColorScheme` disiapkan sejak awal.
 - Komponen bersama: `AppBottomSheet` (grabber + radius 28), `TabPills`,
   `PrimaryButton`, `AsyncView` (loading/error/empty/content).
 - CI GitHub Actions: `lint` + unit test + `assembleDebug`.
@@ -180,6 +185,10 @@ Keputusan penting:
 
 ### Fase 5 — Poles & rilis (±1,5 minggu)
 
+- Gamifikasi istiqomah (layar 17–18): streak harian, sesi muroja'ah
+  flashcard dari kata tersimpan (Ingat / Masih Lupa), rekap perayaan;
+  kata yang lupa dijadwalkan muncul lagi besok (penjadwalan ulang
+  sederhana — bukan algoritma SRS penuh dulu).
 - Pengaturan (layar 11): ukuran font, transliterasi on/off, panjang
   konteks, bahasa terjemahan; tema gelap penuh.
 - Kuota harian gratis + langganan (opsional, keputusan produk terpisah).
@@ -356,6 +365,9 @@ setelah Fase 4–5.
 
 ## Riwayat keputusan
 
+- **v2.3 (26 Agu 2026):** Gaya visual final "Tegas Ceria" (menggantikan
+  indigo modern-fun) diterapkan ke seluruh mockup; tambah layar 17–18
+  (muroja'ah + rekap streak istiqomah) melengkapi putaran gamifikasi.
 - **v2.2 (26 Agu 2026):** Strategi model "hemat dulu" — Gemini 2.5 Flash
   bawaan semua endpoint, lapisan AI model-agnostic di backend, Qwen-VL
   kandidat A/B, Claude Sonnet 5 pembanding atas & jalur eskalasi;
