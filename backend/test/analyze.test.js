@@ -90,6 +90,15 @@ test("sseDataLines splits data payloads and skips [DONE]", async () => {
   assert.deepEqual(payloads, ['{"a":1}', '{"b":2}']);
 });
 
+test("sseDataLines flushes a final frame without a trailing newline", async () => {
+  async function* stream() {
+    yield Buffer.from('data: {"a":1}\n\ndata: {"last":true}');
+  }
+  const payloads = [];
+  for await (const data of sseDataLines(stream())) payloads.push(data);
+  assert.deepEqual(payloads, ['{"a":1}', '{"last":true}']);
+});
+
 test("system prompt embeds the manhaj policy and curated references", () => {
   const prompt = buildSystemPrompt();
   assert.match(prompt, /Ahlus Sunnah wal Jama'ah/);

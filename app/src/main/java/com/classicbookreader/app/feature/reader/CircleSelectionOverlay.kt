@@ -30,7 +30,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.StrokeJoin
@@ -67,6 +66,7 @@ fun CircleSelectionOverlay(
 
     val primary = MaterialTheme.colorScheme.primary
     val amber = AppTheme.glass.amber
+    val scrim = MaterialTheme.colorScheme.scrim
 
     Box(
         modifier = modifier
@@ -90,7 +90,7 @@ fun CircleSelectionOverlay(
     ) {
         Canvas(modifier = Modifier.fillMaxSize()) {
             // Dim the page slightly so the glow and lasso read clearly.
-            drawRect(Color.Black.copy(alpha = 0.18f))
+            drawRect(scrim.copy(alpha = 0.18f))
 
             // Galaxy-AI style breathing edge glow.
             val edge = 26.dp.toPx()

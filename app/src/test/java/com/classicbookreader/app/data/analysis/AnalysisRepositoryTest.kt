@@ -73,7 +73,7 @@ class AnalysisRepositoryTest {
     }
 
     @Test
-    fun blankBackendUrlFallsBackToDemoAndCachesTheResult() = runTest {
+    fun blankBackendUrlFallsBackToDemoWithoutCaching() = runTest {
         val dao = FakeAnalysisCacheDao()
         val remote = mock<RemoteAnalysisSource>()
 
@@ -83,16 +83,13 @@ class AnalysisRepositoryTest {
         val complete = events.last() as AnalysisEvent.Complete
         assertTrue(complete.result.words.isNotEmpty())
         verify(remote, never()).analyze(any())
-        assertTrue("Complete result must be cached", dao.entries.containsKey("key2"))
-        val roundTrip = json.decodeFromString(
-            AnalysisResult.serializer(),
-            dao.entries.getValue("key2").responseJson,
-        )
-        assertEquals(complete.result, roundTrip)
+        // Demo output is a placeholder: it must never poison the cache,
+        // or a later real backend would keep answering with demo text.
+        assertTrue(dao.entries.isEmpty())
     }
 
     @Test
-    fun corruptCacheEntryIsIgnoredAndReplaced() = runTest {
+    fun corruptCacheEntryIsIgnored() = runTest {
         val dao = FakeAnalysisCacheDao().apply {
             entries["key3"] = AnalysisCacheEntity("key3", "not-json{", 1L)
         }
@@ -100,7 +97,5 @@ class AnalysisRepositoryTest {
         val events = repository(dao).analyze("key3", request()).toList()
 
         assertTrue(events.last() is AnalysisEvent.Complete)
-        val stored = dao.entries.getValue("key3").responseJson
-        json.decodeFromString(AnalysisResult.serializer(), stored) // must now parse
     }
 }

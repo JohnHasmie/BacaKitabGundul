@@ -88,6 +88,13 @@ object SelectionGeometry {
             maxY = max(maxY, point.y)
         }
 
+        // A stroke entirely inside a letterbox band never touched the page.
+        val outsidePage = maxX < fit.offsetX ||
+            minX > fit.offsetX + fit.drawnWidth ||
+            maxY < fit.offsetY ||
+            minY > fit.offsetY + fit.drawnHeight
+        if (outsidePage) return null
+
         var left = ((minX - fit.offsetX) / fit.drawnWidth).coerceIn(0f, 1f)
         var right = ((maxX - fit.offsetX) / fit.drawnWidth).coerceIn(0f, 1f)
         var top = ((minY - fit.offsetY) / fit.drawnHeight).coerceIn(0f, 1f)

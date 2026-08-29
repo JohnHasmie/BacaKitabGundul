@@ -13,9 +13,9 @@ fun ConfirmationDialog(
     title: String,
     confirmLabel: String,
     dismissLabel: String,
+    text: String? = null,
     onConfirm: () -> Unit,
     onDismiss: () -> Unit,
-    text: String? = null,
 ) {
     AlertDialog(
         onDismissRequest = onDismiss,

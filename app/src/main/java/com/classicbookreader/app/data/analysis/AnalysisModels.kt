@@ -1,6 +1,7 @@
 package com.classicbookreader.app.data.analysis
 
 import com.classicbookreader.app.core.selection.PixelRect
+import kotlinx.coroutines.flow.Flow
 import kotlinx.serialization.Serializable
 
 /**
@@ -64,5 +65,5 @@ sealed interface AnalysisEvent {
 
 /** One way of producing an analysis (remote backend, demo, …). */
 interface AnalysisSource {
-    fun analyze(request: AnalysisRequest): kotlinx.coroutines.flow.Flow<AnalysisEvent>
+    fun analyze(request: AnalysisRequest): Flow<AnalysisEvent>
 }

@@ -53,6 +53,17 @@ class SelectionGeometryTest {
     }
 
     @Test
+    fun strokeEntirelyInTheLetterboxBandReturnsNull() {
+        // All points above the page (view y < 200 is the top letterbox band).
+        assertNull(
+            SelectionGeometry.normalizeSelection(
+                stroke(100f to 50f, 500f to 50f, 500f to 150f, 100f to 150f),
+                viewW, viewH, imageW, imageH,
+            ),
+        )
+    }
+
+    @Test
     fun normalizeSelectionRejectsDegenerateStrokes() {
         assertNull(
             SelectionGeometry.normalizeSelection(

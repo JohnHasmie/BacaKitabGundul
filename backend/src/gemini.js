@@ -59,8 +59,12 @@ export async function* streamGeminiAnalysis(request, env = process.env, fetchImp
     } catch {
       continue;
     }
-    const text = parsed?.candidates?.[0]?.content?.parts?.[0]?.text;
-    if (typeof text === "string" && text.length > 0) {
+    // A streamed candidate may split its text across several parts.
+    const parts = parsed?.candidates?.[0]?.content?.parts ?? [];
+    const text = parts
+      .map((part) => (typeof part?.text === "string" ? part.text : ""))
+      .join("");
+    if (text.length > 0) {
       accumulated += text;
       yield accumulated;
     }
@@ -89,16 +93,22 @@ export function buildUserPrompt({ selectionBbox, bookContext, options }) {
 export async function* sseDataLines(stream) {
   const decoder = new TextDecoder();
   let buffer = "";
+  const parse = (rawLine) => {
+    const line = rawLine.replace(/\r$/, "");
+    if (!line.startsWith("data:")) return null;
+    const data = line.slice(5).trim();
+    return data && data !== "[DONE]" ? data : null;
+  };
   for await (const chunk of stream) {
     buffer += decoder.decode(chunk, { stream: true });
     let index;
     while ((index = buffer.indexOf("\n")) >= 0) {
-      const line = buffer.slice(0, index).replace(/\r$/, "");
+      const data = parse(buffer.slice(0, index));
       buffer = buffer.slice(index + 1);
-      if (line.startsWith("data:")) {
-        const data = line.slice(5).trim();
-        if (data && data !== "[DONE]") yield data;
-      }
+      if (data) yield data;
     }
   }
+  // Flush a final frame that arrived without a trailing newline.
+  const data = parse(buffer);
+  if (data) yield data;
 }

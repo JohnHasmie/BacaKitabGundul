@@ -230,7 +230,13 @@ class ReaderViewModel @Inject constructor(
         analysisJob = viewModelScope.launch {
             stateFlow.update { it.copy(ai = AiUiState.Preparing) }
 
-            val pageBitmap = renderPage(page, ANALYSIS_RENDER_WIDTH_PX)
+            // One-shot hi-res render, deliberately NOT through the pager cache:
+            // a 1600px page would evict the on-screen bitmaps from the budget.
+            val pageBitmap = try {
+                source?.renderPage(page, ANALYSIS_RENDER_WIDTH_PX)
+            } catch (_: Exception) {
+                null
+            }
             if (pageBitmap == null) {
                 stateFlow.update { it.copy(ai = AiUiState.Failed(AnalysisEvent.FailureReason.SERVER)) }
                 return@launch
@@ -258,6 +264,7 @@ class ReaderViewModel @Inject constructor(
                 )
                 val jpeg = encodeJpeg(cropped)
                 if (cropped !== pageBitmap) cropped.recycle()
+                pageBitmap.recycle() // one-shot render, not cached anywhere
                 AnalysisRequest(
                     jpegImage = jpeg,
                     selectionBbox = SelectionGeometry.selectionWithinCrop(

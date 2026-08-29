@@ -51,6 +51,7 @@ export async function runAnalysis(body, sink, streamer = streamGeminiAnalysis) {
 
   let lastJson = "";
   let lastPartial = "";
+  let result;
   try {
     for await (const accumulated of streamer(body)) {
       lastJson = accumulated;
@@ -60,9 +61,12 @@ export async function runAnalysis(body, sink, streamer = streamGeminiAnalysis) {
         sink.partial(vocalized);
       }
     }
-    const result = JSON.parse(lastJson);
-    sink.complete(result);
+    result = JSON.parse(lastJson);
   } catch (error) {
     sink.error(error instanceof Error ? error.message : "Analysis failed");
+    return;
   }
+  // Outside the try: a throwing complete-callback must not be reported to
+  // the client as an analysis failure.
+  sink.complete(result);
 }

@@ -5,13 +5,18 @@ import { runAnalysis } from "./analyze.js";
 const PORT = Number(process.env.PORT || 8787);
 const MAX_BODY_BYTES = 4 * 1024 * 1024;
 
-// Simple per-client rate limit: N requests per minute keyed by bearer token
-// (falling back to remote address). In-memory — fine for a single instance.
+// Simple per-client rate limit: N requests per minute keyed by remote
+// address (a client-supplied header would be trivially rotated to bypass
+// the limit). In-memory — fine for a single instance.
 const RATE_LIMIT_PER_MINUTE = Number(process.env.RATE_LIMIT_PER_MINUTE || 10);
 const usage = new Map();
 
 function allowRequest(key) {
   const now = Date.now();
+  // Prune dead entries so the map cannot grow without bound.
+  for (const [k, times] of usage) {
+    if (times.every((t) => now - t >= 60_000)) usage.delete(k);
+  }
   const window = usage.get(key)?.filter((t) => now - t < 60_000) ?? [];
   if (window.length >= RATE_LIMIT_PER_MINUTE) return false;
   window.push(now);
@@ -44,20 +49,17 @@ function sendJson(res, status, payload) {
 
 export function createAppServer() {
   return createServer(async (req, res) => {
-    if (req.method === "GET" && req.url === "/healthz") {
+    const path = new URL(req.url ?? "/", "http://localhost").pathname;
+    if (req.method === "GET" && path === "/healthz") {
       sendJson(res, 200, { ok: true });
       return;
     }
-    if (req.method !== "POST" || req.url !== "/v1/analyze") {
+    if (req.method !== "POST" || path !== "/v1/analyze") {
       sendJson(res, 404, { error: "Not found" });
       return;
     }
 
-    const client =
-      req.headers.authorization?.replace(/^Bearer\s+/i, "") ||
-      req.socket.remoteAddress ||
-      "unknown";
-    if (!allowRequest(client)) {
+    if (!allowRequest(req.socket.remoteAddress || "unknown")) {
       sendJson(res, 429, { error: "Rate limit exceeded" });
       return;
     }
@@ -75,14 +77,27 @@ export function createAppServer() {
       "Cache-Control": "no-cache",
       Connection: "keep-alive",
     });
-    const send = (payload) => res.write(`data: ${JSON.stringify(payload)}\n\n`);
+    // Clients can disconnect mid-stream; a throwing sink must never take the
+    // process down, so every write is guarded.
+    const send = (payload) => {
+      if (res.writableEnded || res.destroyed) return;
+      try {
+        res.write(`data: ${JSON.stringify(payload)}\n\n`);
+      } catch {
+        // Socket already gone — drop the frame.
+      }
+    };
 
-    await runAnalysis(body, {
-      partial: (vocalizedText) => send({ type: "partial", vocalizedText }),
-      complete: (result) => send({ type: "complete", result }),
-      error: (message) => send({ type: "error", message }),
-    });
-    res.end();
+    try {
+      await runAnalysis(body, {
+        partial: (vocalizedText) => send({ type: "partial", vocalizedText }),
+        complete: (result) => send({ type: "complete", result }),
+        error: (message) => send({ type: "error", message }),
+      });
+    } catch {
+      send({ type: "error", message: "Analysis failed" });
+    }
+    if (!res.writableEnded) res.end();
   });
 }
 

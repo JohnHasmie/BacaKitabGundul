@@ -37,11 +37,13 @@ class DefaultAnalysisRepository @Inject constructor(
         }
 
         // No backend configured → demo source, so the UX works fully offline.
-        val source: AnalysisSource =
-            if (preferences.backendBaseUrl.first().isBlank()) demo else remote
+        val useDemo = preferences.backendBaseUrl.first().isBlank()
+        val source: AnalysisSource = if (useDemo) demo else remote
 
         source.analyze(request).collect { event ->
-            if (event is AnalysisEvent.Complete) {
+            // Demo results are placeholders — never cache them, or a later
+            // real backend would keep answering with the demo text.
+            if (event is AnalysisEvent.Complete && !useDemo) {
                 cacheDao.upsert(
                     AnalysisCacheEntity(
                         cacheKey = cacheKey,

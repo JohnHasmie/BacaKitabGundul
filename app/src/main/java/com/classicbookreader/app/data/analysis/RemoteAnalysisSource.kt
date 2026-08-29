@@ -7,7 +7,6 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.builtins.serializer
 import kotlinx.serialization.json.Json
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.OkHttpClient
@@ -41,6 +40,24 @@ class RemoteAnalysisSource @Inject constructor(
         val message: String = "",
     )
 
+    /** Wire format of POST /v1/analyze, per the plan §5 contract. */
+    @Serializable
+    private data class AnalyzeBody(
+        val image: String,
+        val selectionBbox: Bbox,
+        val bookContext: BookContext,
+        val options: Options,
+    ) {
+        @Serializable
+        data class Bbox(val x: Int, val y: Int, val w: Int, val h: Int)
+
+        @Serializable
+        data class BookContext(val title: String, val page: Int)
+
+        @Serializable
+        data class Options(val transliteration: Boolean, val glossLanguage: String)
+    }
+
     override fun analyze(request: AnalysisRequest): Flow<AnalysisEvent> = callbackFlow {
         val baseUrl = preferences.backendBaseUrl.first().trim().trimEnd('/')
         if (baseUrl.isBlank()) {
@@ -49,19 +66,23 @@ class RemoteAnalysisSource @Inject constructor(
             return@callbackFlow
         }
 
-        val body = buildString {
-            append("{\"image\":\"")
-            append(Base64.getEncoder().encodeToString(request.jpegImage))
-            append("\",\"selectionBbox\":{")
-            append("\"x\":${request.selectionBbox.left},")
-            append("\"y\":${request.selectionBbox.top},")
-            append("\"w\":${request.selectionBbox.width},")
-            append("\"h\":${request.selectionBbox.height}},")
-            append("\"bookContext\":{")
-            append("\"title\":${json.encodeToString(String.serializer(), request.bookTitle)},")
-            append("\"page\":${request.pageNumber}},")
-            append("\"options\":{\"transliteration\":true,\"glossLanguage\":\"id\"}}")
-        }
+        val body = json.encodeToString(
+            AnalyzeBody.serializer(),
+            AnalyzeBody(
+                image = Base64.getEncoder().encodeToString(request.jpegImage),
+                selectionBbox = AnalyzeBody.Bbox(
+                    x = request.selectionBbox.left,
+                    y = request.selectionBbox.top,
+                    w = request.selectionBbox.width,
+                    h = request.selectionBbox.height,
+                ),
+                bookContext = AnalyzeBody.BookContext(
+                    title = request.bookTitle,
+                    page = request.pageNumber,
+                ),
+                options = AnalyzeBody.Options(transliteration = true, glossLanguage = "id"),
+            ),
+        )
 
         val httpRequest = Request.Builder()
             .url("$baseUrl/v1/analyze")
