@@ -2,6 +2,7 @@ package com.classicbookreader.app.core.selection
 
 import kotlin.math.max
 import kotlin.math.min
+import kotlin.math.roundToInt
 
 /** A point in view (gesture) coordinates, in pixels. */
 data class SelectionPoint(val x: Float, val y: Float)
@@ -136,10 +137,12 @@ object SelectionGeometry {
 
     /** Converts page fractions to a pixel crop rect within a rendered bitmap, always ≥1px. */
     fun toPixelRect(rect: NormalizedRect, bitmapWidth: Int, bitmapHeight: Int): PixelRect {
-        val left = (rect.left * bitmapWidth).toInt().coerceIn(0, bitmapWidth - 1)
-        val top = (rect.top * bitmapHeight).toInt().coerceIn(0, bitmapHeight - 1)
-        val width = (rect.width * bitmapWidth).toInt().coerceIn(1, bitmapWidth - left)
-        val height = (rect.height * bitmapHeight).toInt().coerceIn(1, bitmapHeight - top)
+        // Round, don't truncate: float error (0.333… × 600 = 199.99…) must not
+        // shift the crop by a pixel.
+        val left = (rect.left * bitmapWidth).roundToInt().coerceIn(0, bitmapWidth - 1)
+        val top = (rect.top * bitmapHeight).roundToInt().coerceIn(0, bitmapHeight - 1)
+        val width = (rect.width * bitmapWidth).roundToInt().coerceIn(1, bitmapWidth - left)
+        val height = (rect.height * bitmapHeight).roundToInt().coerceIn(1, bitmapHeight - top)
         return PixelRect(left, top, width, height)
     }
 
