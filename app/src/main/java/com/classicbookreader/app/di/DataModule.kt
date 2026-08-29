@@ -13,6 +13,7 @@ import com.classicbookreader.app.data.pdf.PdfPageSourceFactory
 import com.classicbookreader.app.data.analysis.AnalysisRepository
 import com.classicbookreader.app.data.analysis.DefaultAnalysisRepository
 import com.classicbookreader.app.data.db.AnalysisCacheDao
+import com.classicbookreader.app.data.db.MIGRATION_1_2
 import com.classicbookreader.app.data.db.SavedWordDao
 import com.classicbookreader.app.data.repository.BookRepository
 import com.classicbookreader.app.data.repository.DefaultBookRepository
