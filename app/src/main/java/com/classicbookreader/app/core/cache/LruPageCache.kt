@@ -26,7 +26,10 @@ class LruPageCache<V : Any>(
     fun get(key: PageKey): V? = entries[key]
 
     fun put(key: PageKey, value: V) {
-        entries.remove(key)?.let { currentBytes -= sizeOf(it) }
+        entries.remove(key)?.let { replaced ->
+            currentBytes -= sizeOf(replaced)
+            if (replaced !== value) onEvict(key, replaced)
+        }
         entries[key] = value
         currentBytes += sizeOf(value)
         evictIfNeeded()

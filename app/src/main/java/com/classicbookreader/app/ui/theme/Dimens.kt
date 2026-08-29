@@ -12,6 +12,12 @@ object Spacing {
     val xxl = 24.dp
 }
 
+/** Fixed layout sizes shared across screens. */
+object Sizes {
+    /** Bottom clearance so scrolling content is not hidden behind the floating dock. */
+    val dockClearance = 96.dp
+}
+
 /** Corner radius scale for glass surfaces. */
 object Radius {
     val sm = 14.dp

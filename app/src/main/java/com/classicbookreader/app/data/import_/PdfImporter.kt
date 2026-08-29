@@ -44,7 +44,7 @@ class PdfImporter @Inject constructor(
 
         try {
             copyToFile(uri, pdfFile)
-        } catch (error: Exception) {
+        } catch (_: Exception) {
             cleanUp(pdfFile, coverFile)
             return@withContext Result.Failure(FailureReason.COPY_FAILED)
         }
@@ -55,13 +55,13 @@ class PdfImporter @Inject constructor(
                 pageCount = source.pageCount
                 val cover = source.renderPage(pageIndex = 0, targetWidthPx = COVER_WIDTH_PX)
                 coverFile.outputStream().use { stream ->
-                    cover.compress(Bitmap.CompressFormat.PNG, 90, stream)
+                    cover.compress(Bitmap.CompressFormat.PNG, 100, stream)
                 }
             }
-        } catch (error: SecurityException) {
+        } catch (_: SecurityException) {
             cleanUp(pdfFile, coverFile)
             return@withContext Result.Failure(FailureReason.PROTECTED_PDF)
-        } catch (error: Exception) {
+        } catch (_: Exception) {
             cleanUp(pdfFile, coverFile)
             return@withContext Result.Failure(FailureReason.INVALID_PDF)
         }

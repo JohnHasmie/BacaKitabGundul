@@ -91,7 +91,7 @@ class ReaderViewModel @Inject constructor(
                         currentPage = initialPage,
                     )
                 }
-            } catch (error: Exception) {
+            } catch (_: Exception) {
                 stateFlow.update { it.copy(meta = UiState.Error("")) }
             }
         }
@@ -120,7 +120,7 @@ class ReaderViewModel @Inject constructor(
                             inFlight.remove(key)
                         }
                         bitmap
-                    } catch (error: Exception) {
+                    } catch (_: Exception) {
                         renderLock.withLock { inFlight.remove(key) }
                         null
                     }
@@ -161,7 +161,8 @@ class ReaderViewModel @Inject constructor(
     }
 
     override fun onCleared() {
-        inFlight.values.forEach { it.cancel() }
+        // Snapshot: cancelled tasks mutate the map from their catch blocks.
+        inFlight.values.toList().forEach { it.cancel() }
         source?.close()
         cache.clear()
         super.onCleared()

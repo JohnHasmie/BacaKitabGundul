@@ -9,7 +9,6 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import javax.inject.Inject
-import kotlin.math.roundToInt
 
 @HiltViewModel
 class HomeViewModel @Inject constructor(
@@ -25,8 +24,6 @@ class HomeViewModel @Inject constructor(
     ) {
         val progress: Float
             get() = if (pageCount <= 0) 0f else (lastReadPage + 1f) / pageCount
-        val progressPercent: Int
-            get() = (progress * 100).roundToInt()
     }
 
     val continueReading: StateFlow<ContinueReadingUi?> = repository.observeContinueReading()

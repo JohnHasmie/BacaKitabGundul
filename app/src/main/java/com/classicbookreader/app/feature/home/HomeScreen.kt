@@ -24,6 +24,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.res.stringArrayResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -39,6 +40,7 @@ import com.classicbookreader.app.ui.components.StreakCard
 import com.classicbookreader.app.ui.components.StreakDay
 import com.classicbookreader.app.ui.theme.AppTheme
 import com.classicbookreader.app.ui.theme.Radius
+import com.classicbookreader.app.ui.theme.Sizes
 import com.classicbookreader.app.ui.theme.Spacing
 
 @Composable
@@ -49,15 +51,13 @@ fun HomeScreen(
     val continueReading by viewModel.continueReading.collectAsStateWithLifecycle()
 
     // Streak stays static until the murajaah loop lands in Phase 5.
-    val sampleWeek = listOf(
-        StreakDay("A", DayStatus.Completed),
-        StreakDay("S", DayStatus.Completed),
-        StreakDay("S", DayStatus.Completed),
-        StreakDay("R", DayStatus.Today),
-        StreakDay("K", DayStatus.Upcoming),
-        StreakDay("J", DayStatus.Upcoming),
-        StreakDay("S", DayStatus.Upcoming),
+    val dayInitials = stringArrayResource(R.array.streak_day_initials)
+    val sampleStatuses = listOf(
+        DayStatus.Completed, DayStatus.Completed, DayStatus.Completed,
+        DayStatus.Today,
+        DayStatus.Upcoming, DayStatus.Upcoming, DayStatus.Upcoming,
     )
+    val sampleWeek = dayInitials.zip(sampleStatuses, ::StreakDay)
 
     Column(
         modifier = Modifier
@@ -75,14 +75,14 @@ fun HomeScreen(
                 color = AppTheme.glass.inkTertiary,
             )
             Text(
-                text = "Yahya",
+                text = stringResource(R.string.home_greeting_name_placeholder),
                 style = MaterialTheme.typography.headlineMedium,
             )
         }
 
         StreakCard(
             title = stringResource(R.string.streak_title),
-            daysLabel = "3 " + stringResource(R.string.streak_days_suffix),
+            daysLabel = stringResource(R.string.streak_days_format, 3),
             subtitle = stringResource(R.string.streak_subtitle),
             week = sampleWeek,
         )
@@ -121,7 +121,7 @@ fun HomeScreen(
             }
         }
 
-        Spacer(modifier = Modifier.height(96.dp)) // room for the floating dock
+        Spacer(modifier = Modifier.height(Sizes.dockClearance))
     }
 }
 

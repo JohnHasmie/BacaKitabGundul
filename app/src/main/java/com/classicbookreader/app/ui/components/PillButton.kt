@@ -37,7 +37,8 @@ fun PillButton(
             .heightIn(min = 48.dp)
             .padding(horizontal = Spacing.xxl, vertical = Spacing.md),
         verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(Spacing.sm),
+        // Centered so a fillMaxWidth pill (e.g. the onboarding CTA) keeps its label centered.
+        horizontalArrangement = Arrangement.spacedBy(Spacing.sm, Alignment.CenterHorizontally),
     ) {
         Text(
             text = text,

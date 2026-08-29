@@ -16,6 +16,7 @@ import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.AutoAwesome
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -50,6 +51,7 @@ import com.classicbookreader.app.ui.components.PillButton
 import com.classicbookreader.app.ui.components.ProgressRing
 import com.classicbookreader.app.ui.components.UiState
 import com.classicbookreader.app.ui.theme.AppTheme
+import com.classicbookreader.app.ui.theme.Radius
 import com.classicbookreader.app.ui.theme.Spacing
 import kotlin.math.min
 
@@ -85,7 +87,9 @@ fun ReaderScreen(
     Box(modifier = Modifier.fillMaxSize()) {
         when (val meta = state.meta) {
             is UiState.Loading, is UiState.Empty ->
-                Box(modifier = Modifier.fillMaxSize())
+                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                    CircularProgressIndicator(color = MaterialTheme.colorScheme.primary)
+                }
 
             is UiState.Error -> ReaderError(onBack = onBack)
 
@@ -186,7 +190,7 @@ private fun ReaderChrome(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(Spacing.sm),
     ) {
-        GlassCard(cornerRadius = 999.dp) {
+        GlassCard(cornerRadius = Radius.pill) {
             IconButton(onClick = onBack) {
                 Icon(
                     imageVector = Icons.AutoMirrored.Filled.ArrowBack,
@@ -195,7 +199,7 @@ private fun ReaderChrome(
                 )
             }
         }
-        GlassCard(cornerRadius = 999.dp, modifier = Modifier.weight(1f)) {
+        GlassCard(cornerRadius = Radius.pill, modifier = Modifier.weight(1f)) {
             Row(
                 modifier = Modifier.padding(horizontal = Spacing.lg, vertical = Spacing.sm),
                 verticalAlignment = Alignment.CenterVertically,

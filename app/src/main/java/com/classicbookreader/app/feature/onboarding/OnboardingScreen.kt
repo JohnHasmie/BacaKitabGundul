@@ -87,7 +87,7 @@ fun OnboardingScreen(
             GlassCard {
                 CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl) {
                     Text(
-                        text = "الكلام هو اللفظ المركب",
+                        text = stringResource(R.string.onboarding_sample_arabic),
                         style = ArabicTextStyles.label,
                         modifier = Modifier.padding(horizontal = Spacing.xxl, vertical = Spacing.xl),
                     )

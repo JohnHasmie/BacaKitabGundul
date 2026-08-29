@@ -51,6 +51,7 @@ import com.classicbookreader.app.ui.components.PillButton
 import com.classicbookreader.app.ui.components.ProgressRing
 import com.classicbookreader.app.ui.theme.AppTheme
 import com.classicbookreader.app.ui.theme.Radius
+import com.classicbookreader.app.ui.theme.Sizes
 import com.classicbookreader.app.ui.theme.Spacing
 
 @Composable
@@ -135,7 +136,7 @@ fun LibraryScreen(
             hostState = snackbarHostState,
             modifier = Modifier
                 .align(Alignment.BottomCenter)
-                .padding(bottom = 96.dp),
+                .padding(bottom = Sizes.dockClearance),
         )
     }
 
@@ -162,7 +163,7 @@ private fun BookGrid(books: List<BookUi>, onOpenBook: (Long) -> Unit) {
             BookTile(book = book, onClick = { onOpenBook(book.id) })
         }
         item(span = { GridItemSpan(maxLineSpan) }) {
-            Spacer(modifier = Modifier.height(96.dp)) // room for the floating dock
+            Spacer(modifier = Modifier.height(Sizes.dockClearance))
         }
     }
 }

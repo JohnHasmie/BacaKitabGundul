@@ -31,6 +31,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.classicbookreader.app.R
+import com.classicbookreader.app.ui.components.GlassCard
 import com.classicbookreader.app.ui.theme.AppTheme
 import com.classicbookreader.app.ui.theme.Radius
 import com.classicbookreader.app.ui.theme.Spacing
@@ -102,45 +103,45 @@ private fun ImportOptionRow(
     enabled: Boolean,
     onClick: () -> Unit,
 ) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clip(RoundedCornerShape(Radius.lg))
-            .background(AppTheme.glass.surface)
-            .clickable(enabled = enabled, onClick = onClick)
-            .padding(Spacing.lg)
-            .alpha(if (enabled) 1f else 0.5f),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(Spacing.lg),
-    ) {
+    GlassCard(modifier = Modifier.fillMaxWidth()) {
         Row(
             modifier = Modifier
-                .size(46.dp)
-                .clip(RoundedCornerShape(Radius.sm))
-                .background(iconBackground),
+                .fillMaxWidth()
+                .clickable(enabled = enabled, onClick = onClick)
+                .padding(Spacing.lg)
+                .alpha(if (enabled) 1f else 0.5f),
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.Center,
+            horizontalArrangement = Arrangement.spacedBy(Spacing.lg),
         ) {
-            Icon(imageVector = icon, contentDescription = null, tint = iconTint, modifier = Modifier.size(22.dp))
-        }
-        Column(modifier = Modifier.weight(1f)) {
-            Text(text = title, style = MaterialTheme.typography.titleSmall)
-            Text(
-                text = subtitle,
-                style = MaterialTheme.typography.bodyMedium,
-                color = AppTheme.glass.inkSecondary,
-            )
-        }
-        if (!enabled) {
-            Text(
-                text = stringResource(R.string.import_coming_soon),
-                style = MaterialTheme.typography.labelMedium,
-                color = AppTheme.glass.inkTertiary,
+            Row(
                 modifier = Modifier
-                    .clip(CircleShape)
-                    .background(AppTheme.glass.inkWash)
-                    .padding(horizontal = Spacing.md, vertical = Spacing.xs),
-            )
+                    .size(46.dp)
+                    .clip(RoundedCornerShape(Radius.sm))
+                    .background(iconBackground),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.Center,
+            ) {
+                Icon(imageVector = icon, contentDescription = null, tint = iconTint, modifier = Modifier.size(22.dp))
+            }
+            Column(modifier = Modifier.weight(1f)) {
+                Text(text = title, style = MaterialTheme.typography.titleSmall)
+                Text(
+                    text = subtitle,
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = AppTheme.glass.inkSecondary,
+                )
+            }
+            if (!enabled) {
+                Text(
+                    text = stringResource(R.string.import_coming_soon),
+                    style = MaterialTheme.typography.labelMedium,
+                    color = AppTheme.glass.inkTertiary,
+                    modifier = Modifier
+                        .clip(CircleShape)
+                        .background(AppTheme.glass.inkWash)
+                        .padding(horizontal = Spacing.md, vertical = Spacing.xs),
+                )
+            }
         }
     }
 }

@@ -8,8 +8,19 @@
     <string name="nav_settings">Atur</string>
 
     <string name="home_greeting_prefix">Ahlan wa sahlan,</string>
+    <!-- Placeholder until user profiles exist (Phase 5). -->
+    <string name="home_greeting_name_placeholder">Yahya</string>
     <string name="streak_title">Istiqomah</string>
-    <string name="streak_days_suffix">hari</string>
+    <string name="streak_days_format">%1$d hari</string>
+    <string-array name="streak_day_initials">
+        <item>A</item>
+        <item>S</item>
+        <item>S</item>
+        <item>R</item>
+        <item>K</item>
+        <item>J</item>
+        <item>S</item>
+    </string-array>
     <string name="streak_subtitle">Baca atau muroja\'ah hari ini untuk melanjutkan</string>
     <string name="home_continue_reading">Lanjut baca</string>
     <string name="home_saved_words">Kata tersimpan</string>
@@ -42,11 +53,12 @@
     <string name="onboarding_headline_3">Istiqomah.</string>
     <string name="onboarding_body">Lingkari kata Arab gundul mana pun — AI menjelaskan cara baca, i\'rob, shorof, dan artinya, lengkap dengan konteksnya.</string>
     <string name="onboarding_cta">Mulai belajar</string>
+    <string name="onboarding_sample_arabic" translatable="false">الكلام هو اللفظ المركب</string>
 
     <!-- Reader -->
     <string name="reader_page_of">hlm. %1$d dari %2$d</string>
     <string name="reader_circle_ai">Lingkari dengan AI</string>
-    <string name="reader_ai_coming">Segera di Fase 2</string>
+    <string name="reader_ai_coming">Fitur AI segera hadir</string>
     <string name="reader_open_error">Tidak bisa membuka kitab</string>
     <string name="reader_back">Kembali</string>
 </resources>
