@@ -45,6 +45,8 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.classicbookreader.app.R
+import com.classicbookreader.app.core.selection.SelectionPoint
+import com.classicbookreader.app.feature.reader.ReaderViewModel.AiUiState
 import com.classicbookreader.app.feature.reader.ReaderViewModel.ReaderEvent
 import com.classicbookreader.app.ui.components.GlassCard
 import com.classicbookreader.app.ui.components.PillButton
@@ -63,6 +65,7 @@ fun ReaderScreen(
     viewModel: ReaderViewModel = hiltViewModel(),
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
+    val isDemoMode by viewModel.isDemoMode.collectAsStateWithLifecycle()
     val snackbarHostState = remember { SnackbarHostState() }
     val context = LocalContext.current
     val lifecycleOwner = LocalLifecycleOwner.current
@@ -78,8 +81,10 @@ fun ReaderScreen(
     LaunchedEffect(Unit) {
         viewModel.events.collect { event ->
             when (event) {
-                ReaderEvent.AiComingSoon ->
-                    snackbarHostState.showSnackbar(context.getString(R.string.reader_ai_coming))
+                ReaderEvent.WordSaved ->
+                    snackbarHostState.showSnackbar(context.getString(R.string.ai_word_saved))
+                ReaderEvent.ReportAcknowledged ->
+                    snackbarHostState.showSnackbar(context.getString(R.string.ai_report_thanks))
             }
         }
     }
@@ -96,11 +101,28 @@ fun ReaderScreen(
             is UiState.Content -> ReaderContent(
                 meta = meta.data,
                 currentPage = state.currentPage,
+                ai = state.ai,
                 pageBitmap = viewModel::pageBitmap,
                 onPageSettled = viewModel::onPageSettled,
-                onCircleAiClicked = viewModel::onCircleAiClicked,
+                onEnterAiMode = viewModel::enterAiMode,
+                onExitAiMode = viewModel::exitAiMode,
+                onStrokeFinished = viewModel::onSelectionDrawn,
                 onBack = onBack,
             )
+        }
+
+        when (state.ai) {
+            is AiUiState.Preparing, is AiUiState.Streaming,
+            is AiUiState.Ready, is AiUiState.Failed,
+            -> AnalysisSheet(
+                ai = state.ai,
+                isDemoMode = isDemoMode,
+                onDismiss = viewModel::dismissAnalysis,
+                onRetry = viewModel::retryAnalysis,
+                onSaveWord = viewModel::saveWord,
+                onReport = viewModel::reportAnalysis,
+            )
+            else -> Unit
         }
 
         SnackbarHost(
@@ -116,12 +138,16 @@ fun ReaderScreen(
 private fun ReaderContent(
     meta: ReaderViewModel.BookMeta,
     currentPage: Int,
+    ai: AiUiState,
     pageBitmap: suspend (pageIndex: Int, targetWidthPx: Int) -> Bitmap?,
     onPageSettled: (Int) -> Unit,
-    onCircleAiClicked: () -> Unit,
+    onEnterAiMode: () -> Unit,
+    onExitAiMode: () -> Unit,
+    onStrokeFinished: (List<SelectionPoint>, Float, Float) -> Unit,
     onBack: () -> Unit,
 ) {
     var isZoomed by remember { mutableStateOf(false) }
+    val aiActive = ai !is AiUiState.Off
     val pagerState = rememberPagerState(initialPage = meta.initialPage) { meta.pageCount }
 
     LaunchedEffect(pagerState) {
@@ -134,7 +160,7 @@ private fun ReaderContent(
         VerticalPager(
             state = pagerState,
             beyondViewportPageCount = 1,
-            userScrollEnabled = !isZoomed,
+            userScrollEnabled = !isZoomed && !aiActive,
             modifier = Modifier.fillMaxSize(),
         ) { pageIndex ->
             val bitmap by produceState<Bitmap?>(initialValue = null, pageIndex, targetWidthPx) {
@@ -142,38 +168,46 @@ private fun ReaderContent(
             }
             ZoomablePage(
                 bitmap = bitmap?.asImageBitmap(),
-                resetKey = pagerState.settledPage,
+                // Entering AI mode resets zoom so gesture coordinates map 1:1.
+                resetKey = pagerState.settledPage * 2 + if (aiActive) 1 else 0,
                 onZoomChanged = { zoomed -> isZoomed = zoomed },
             )
         }
 
-        ReaderChrome(
-            title = meta.title,
-            currentPage = currentPage,
-            pageCount = meta.pageCount,
-            onBack = onBack,
-            modifier = Modifier
-                .align(Alignment.TopCenter)
-                .statusBarsPadding()
-                .padding(horizontal = Spacing.lg, vertical = Spacing.sm),
-        )
+        if (aiActive) {
+            CircleSelectionOverlay(
+                onStrokeFinished = onStrokeFinished,
+                onExit = onExitAiMode,
+            )
+        } else {
+            ReaderChrome(
+                title = meta.title,
+                currentPage = currentPage,
+                pageCount = meta.pageCount,
+                onBack = onBack,
+                modifier = Modifier
+                    .align(Alignment.TopCenter)
+                    .statusBarsPadding()
+                    .padding(horizontal = Spacing.lg, vertical = Spacing.sm),
+            )
 
-        PillButton(
-            text = stringResource(R.string.reader_circle_ai),
-            onClick = onCircleAiClicked,
-            modifier = Modifier
-                .align(Alignment.BottomCenter)
-                .navigationBarsPadding()
-                .padding(bottom = Spacing.xxl),
-            trailing = {
-                Icon(
-                    imageVector = Icons.Filled.AutoAwesome,
-                    contentDescription = null,
-                    tint = AppTheme.glass.amber,
-                    modifier = Modifier.size(16.dp),
-                )
-            },
-        )
+            PillButton(
+                text = stringResource(R.string.reader_circle_ai),
+                onClick = onEnterAiMode,
+                modifier = Modifier
+                    .align(Alignment.BottomCenter)
+                    .navigationBarsPadding()
+                    .padding(bottom = Spacing.xxl),
+                trailing = {
+                    Icon(
+                        imageVector = Icons.Filled.AutoAwesome,
+                        contentDescription = null,
+                        tint = AppTheme.glass.amber,
+                        modifier = Modifier.size(16.dp),
+                    )
+                },
+            )
+        }
     }
 }
 

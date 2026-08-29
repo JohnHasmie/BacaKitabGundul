@@ -1,0 +1,22 @@
+{
+  "_comment": "Curated whitelist of reference works (plan §5b). Managed by the product owner with the supervising ustadz; editable without an app release. Cross-references and insight cards may only cite works on this list.",
+  "manhaj": "Ahlus Sunnah wal Jama'ah with the understanding of the salafush-shalih",
+  "fields": {
+    "nahwu_sarf": [
+      "Al-Ajurumiyyah",
+      "Mutammimah Al-Ajurumiyyah",
+      "Qatrun Nada",
+      "Alfiyah Ibnu Malik and its mu'tabar commentaries"
+    ],
+    "tafsir": [
+      "Tafsir Ibnu Katsir",
+      "Tafsir As-Sa'di"
+    ],
+    "hadith": [
+      "Kutubus Sittah with their mu'tabar commentaries"
+    ],
+    "aqidah_fiqih": [
+      "Salaf reference works designated by the supervising ustadz"
+    ]
+  }
+}

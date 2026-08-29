@@ -28,6 +28,9 @@
 
     <string name="placeholder_coming_soon">Segera hadir di fase berikutnya</string>
     <string name="action_retry">Coba lagi</string>
+    <string name="action_save">Simpan</string>
+    <string name="action_delete">Hapus</string>
+    <string name="action_cancel">Batal</string>
 
     <!-- Library -->
     <string name="library_title">Kitabku</string>
@@ -59,7 +62,43 @@
     <!-- Reader -->
     <string name="reader_page_of">hlm. %1$d dari %2$d</string>
     <string name="reader_circle_ai">Lingkari dengan AI</string>
-    <string name="reader_ai_coming">Fitur AI segera hadir</string>
     <string name="reader_open_error">Tidak bisa membuka kitab</string>
     <string name="reader_back">Kembali</string>
+
+    <!-- Circle-to-analyze -->
+    <string name="reader_ai_hint">Lingkari kata atau kalimatnya</string>
+    <string name="reader_ai_exit">Keluar dari mode AI</string>
+    <string name="ai_analyzing">Menganalisis…</string>
+    <string name="ai_label">Penjelasan AI</string>
+    <string name="ai_report">Laporkan</string>
+    <string name="ai_report_thanks">Terima kasih, laporan kamu terkirim</string>
+    <string name="ai_word_saved">Kata tersimpan</string>
+    <string name="ai_save_word">Simpan kata</string>
+    <string name="ai_tab_reading">Cara Baca</string>
+    <string name="ai_tab_irab">I\'rob</string>
+    <string name="ai_tab_sarf">Shorof</string>
+    <string name="ai_tab_meaning">Arti</string>
+    <string name="ai_irab_role">Kedudukan</string>
+    <string name="ai_irab_case_marker">Tanda i\'rob</string>
+    <string name="ai_sarf_root">Akar kata</string>
+    <string name="ai_sarf_pattern">Wazan</string>
+    <string name="ai_sarf_form">Bentuk</string>
+    <string name="ai_context_title">Konteks kalimat</string>
+    <string name="ai_failed_network">Tidak bisa terhubung ke server analisis</string>
+    <string name="ai_failed_server">Analisis gagal, silakan coba lagi</string>
+    <string name="ai_demo_note">Mode demo — atur alamat server AI di menu Atur untuk analisis sungguhan.</string>
+
+    <!-- Saved words -->
+    <string name="saved_words_title">Kata tersimpan</string>
+    <string name="saved_words_empty">Belum ada kata tersimpan</string>
+    <string name="saved_words_empty_hint">Lingkari kata di kitab, lalu simpan dari hasil analisis</string>
+    <string name="saved_words_page">Halaman %1$d</string>
+    <string name="saved_words_delete_confirm">Hapus kata ini?</string>
+
+    <!-- Settings -->
+    <string name="settings_title">Pengaturan</string>
+    <string name="settings_ai_server_title">Server AI</string>
+    <string name="settings_ai_server_desc">Alamat backend analisis milikmu. Kosongkan untuk mode demo tanpa server.</string>
+    <string name="settings_ai_server_hint">https://…</string>
+    <string name="settings_saved">Pengaturan tersimpan</string>
 </resources>

@@ -49,6 +49,7 @@ fun HomeScreen(
     viewModel: HomeViewModel = hiltViewModel(),
 ) {
     val continueReading by viewModel.continueReading.collectAsStateWithLifecycle()
+    val savedWordCount by viewModel.savedWordCount.collectAsStateWithLifecycle()
 
     // Streak stays static until the murajaah loop lands in Phase 5.
     val dayInitials = stringArrayResource(R.array.streak_day_initials)
@@ -100,7 +101,7 @@ fun HomeScreen(
                         color = AppTheme.glass.inkSecondary,
                     )
                     Text(
-                        text = "0",
+                        text = savedWordCount.toString(),
                         style = MaterialTheme.typography.displaySmall,
                     )
                 }

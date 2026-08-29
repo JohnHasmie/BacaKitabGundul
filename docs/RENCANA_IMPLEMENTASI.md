@@ -295,9 +295,11 @@ Skema (English, snake_case):
   Fase 1 sebagai sinyal recency untuk tile "Lanjut baca" di beranda
 - `saved_words(id, book_id?, global_source?, arabic_text, vocalized_text,
   transliteration, gloss, irab_json, sarf_json, page_number, created_at,
-  memorization_status)`
+  memorization_status)` — diimplementasikan di Fase 2 (DB v2)
 - `analysis_cache(cache_key, response_json, created_at)` — key =
-  sha256(book_id|page|normalized_bbox) atau sha256(image) di mode global
+  sha256(book_id|page|normalized_bbox) atau sha256(image) di mode global —
+  diimplementasikan di Fase 2 (DB v2); bbox dikuantisasi grid 1/200 agar
+  lingkaran yang sedikit bergeser tetap kena cache
 - `page_translation_cache(book_id, page_number, response_json, created_at)`
 - `insight_cache(root, response_json, created_at)` — salinan lokal dari
   cache global backend (tab Wawasan)

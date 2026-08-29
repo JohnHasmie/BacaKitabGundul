@@ -35,15 +35,20 @@ three tasks on every push (`.github/workflows/android.yml`).
 app/src/main/java/com/classicbookreader/app/
 ├── MainActivity.kt / ClassicBookReaderApp.kt
 ├── navigation/          # NavHost + routes
+├── core/                # pure-JVM logic (cache, selection geometry, …)
+├── data/                # Room, DataStore, PDF, analysis pipeline
 ├── ui/theme/            # Tegas Glass tokens: Color, Type, Dimens, Theme
-├── ui/components/       # GlassCard, PillButton, GlassDock, RailTab,
-│                        # StreakCard, AsyncView, PlaceholderScreen
-└── feature/<name>/      # one package per feature (home, library, ...)
+├── ui/components/       # GlassCard, PillButton, GlassDock, AsyncView, …
+└── feature/<name>/      # one package per feature (home, library, reader, ...)
+backend/                 # /v1/analyze SSE service (Node, zero-dependency)
 ```
 
-Phase status: **Phase 1 (core reader) complete** — Room + DataStore,
-PDF import via SAF (copied into app storage, cover generated), library
-grid, one-time onboarding, PdfRenderer-based reader (vertical pager,
-pinch zoom, ±2-page LRU bitmap cache, reading-progress persistence),
-home "continue reading" tile. The AI circle pill is a visible
-placeholder for Phase 2.
+Phase status: **Phase 2 (in-app AI pipeline) complete** — on top of the
+Phase 1 reader: circle-to-analyze mode (edge glow + lasso gesture),
+selection cropped to JPEG with context margin, streaming analysis sheet
+(Cara Baca / I'rob / Shorof / Arti) with early-harakat partials, save-word
+flow + saved-words screen, Room analysis cache (same circle never pays
+twice), and a settings field for the backend URL — blank runs a built-in
+demo analysis so the UX works without a server. `backend/` hosts the
+matching `/v1/analyze` service (Gemini 2.5 Flash by default; the API key
+lives only there).

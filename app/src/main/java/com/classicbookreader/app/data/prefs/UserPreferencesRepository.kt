@@ -4,6 +4,7 @@ import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
+import androidx.datastore.preferences.core.stringPreferencesKey
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import javax.inject.Inject
@@ -20,5 +21,15 @@ class UserPreferencesRepository @Inject constructor(
 
     suspend fun setOnboardingCompleted() {
         dataStore.edit { preferences -> preferences[onboardingCompletedKey] = true }
+    }
+
+    private val backendBaseUrlKey = stringPreferencesKey("backend_base_url")
+
+    /** Blank = no backend configured; the analysis pipeline runs in demo mode. */
+    val backendBaseUrl: Flow<String> =
+        dataStore.data.map { preferences -> preferences[backendBaseUrlKey]?.trim().orEmpty() }
+
+    suspend fun setBackendBaseUrl(value: String) {
+        dataStore.edit { preferences -> preferences[backendBaseUrlKey] = value.trim() }
     }
 }
