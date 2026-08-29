@@ -27,6 +27,7 @@
     <string name="home_murajaah">Muroja\'ah</string>
 
     <string name="placeholder_coming_soon">Segera hadir di fase berikutnya</string>
+    <string name="action_retry">Coba lagi</string>
 
     <!-- Library -->
     <string name="library_title">Kitabku</string>

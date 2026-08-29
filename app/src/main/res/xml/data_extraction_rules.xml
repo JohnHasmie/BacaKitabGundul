@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- API 31+ counterpart of backup_rules.xml: same exclusions for both
+     cloud backup and device-to-device transfer. -->
+<data-extraction-rules>
+    <cloud-backup>
+        <exclude domain="file" path="books" />
+        <exclude domain="file" path="covers" />
+        <exclude domain="database" path="classic_book_reader.db" />
+        <exclude domain="database" path="classic_book_reader.db-wal" />
+        <exclude domain="database" path="classic_book_reader.db-shm" />
+    </cloud-backup>
+    <device-transfer>
+        <exclude domain="file" path="books" />
+        <exclude domain="file" path="covers" />
+        <exclude domain="database" path="classic_book_reader.db" />
+        <exclude domain="database" path="classic_book_reader.db-wal" />
+        <exclude domain="database" path="classic_book_reader.db-shm" />
+    </device-transfer>
+</data-extraction-rules>

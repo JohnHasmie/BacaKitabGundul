@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- API 26-30 Auto Backup. Imported PDFs and covers are too large for the
+     cloud-backup quota, and the book database references those files, so
+     both are excluded together; only small preferences are backed up. -->
+<full-backup-content>
+    <exclude domain="file" path="books" />
+    <exclude domain="file" path="covers" />
+    <exclude domain="database" path="classic_book_reader.db" />
+    <exclude domain="database" path="classic_book_reader.db-wal" />
+    <exclude domain="database" path="classic_book_reader.db-shm" />
+</full-backup-content>

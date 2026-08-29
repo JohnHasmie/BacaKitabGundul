@@ -11,7 +11,9 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
+import com.classicbookreader.app.R
 import com.classicbookreader.app.ui.theme.AppTheme
 import com.classicbookreader.app.ui.theme.Spacing
 
@@ -51,7 +53,7 @@ fun <T> AsyncView(
                     color = AppTheme.glass.inkSecondary,
                     textAlign = TextAlign.Center,
                 )
-                PillButton(text = "Coba lagi", onClick = onRetry)
+                PillButton(text = stringResource(R.string.action_retry), onClick = onRetry)
             }
         }
 
