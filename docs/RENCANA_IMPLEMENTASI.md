@@ -291,7 +291,8 @@ label "Penjelasan AI" dan tombol laporkan.
 Skema (English, snake_case):
 
 - `books(id, title, file_path, page_count, last_read_page, cover_path,
-  created_at)`
+  created_at, last_read_at)` — `last_read_at` (epoch ms) ditambahkan di
+  Fase 1 sebagai sinyal recency untuk tile "Lanjut baca" di beranda
 - `saved_words(id, book_id?, global_source?, arabic_text, vocalized_text,
   transliteration, gloss, irab_json, sarf_json, page_number, created_at,
   memorization_status)`

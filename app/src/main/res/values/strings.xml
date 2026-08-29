@@ -11,6 +11,42 @@
     <string name="streak_title">Istiqomah</string>
     <string name="streak_days_suffix">hari</string>
     <string name="streak_subtitle">Baca atau muroja\'ah hari ini untuk melanjutkan</string>
+    <string name="home_continue_reading">Lanjut baca</string>
+    <string name="home_saved_words">Kata tersimpan</string>
+    <string name="home_murajaah">Muroja\'ah</string>
 
     <string name="placeholder_coming_soon">Segera hadir di fase berikutnya</string>
+
+    <!-- Library -->
+    <string name="library_title">Kitabku</string>
+    <string name="library_add_book">Tambah kitab</string>
+    <string name="library_empty">Belum ada kitab</string>
+    <string name="library_page_of">Halaman %1$d dari %2$d</string>
+    <string name="import_option_pdf">File PDF</string>
+    <string name="import_option_pdf_desc">Dari penyimpanan ponsel — kitab scan juga bisa</string>
+    <string name="import_option_epub">EPUB</string>
+    <string name="import_option_epub_desc">Buku digital dengan teks asli, bukan hasil scan</string>
+    <string name="import_option_scan">Pindai kamera</string>
+    <string name="import_option_scan_desc">Foto halaman kitab fisik jadi kitab digital</string>
+    <string name="import_coming_soon">Segera hadir</string>
+    <string name="import_in_progress">Sedang diimpor</string>
+    <string name="import_privacy_note">Kitab tersimpan di ponselmu. Hanya potongan yang kamu lingkari yang dikirim untuk dianalisis.</string>
+    <string name="import_error_generic">Gagal mengimpor PDF</string>
+    <string name="import_error_protected">PDF terkunci tidak didukung</string>
+    <string name="import_default_title">Kitab tanpa judul</string>
+
+    <!-- Onboarding -->
+    <string name="onboarding_skip">Lewati</string>
+    <string name="onboarding_headline_1">Lingkari.</string>
+    <string name="onboarding_headline_2">Paham.</string>
+    <string name="onboarding_headline_3">Istiqomah.</string>
+    <string name="onboarding_body">Lingkari kata Arab gundul mana pun — AI menjelaskan cara baca, i\'rob, shorof, dan artinya, lengkap dengan konteksnya.</string>
+    <string name="onboarding_cta">Mulai belajar</string>
+
+    <!-- Reader -->
+    <string name="reader_page_of">hlm. %1$d dari %2$d</string>
+    <string name="reader_circle_ai">Lingkari dengan AI</string>
+    <string name="reader_ai_coming">Segera di Fase 2</string>
+    <string name="reader_open_error">Tidak bisa membuka kitab</string>
+    <string name="reader_back">Kembali</string>
 </resources>

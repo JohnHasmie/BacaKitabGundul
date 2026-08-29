@@ -9,6 +9,11 @@ coreKtx = "1.15.0"
 lifecycle = "2.8.7"
 navigationCompose = "2.8.5"
 hiltNavigationCompose = "1.2.0"
+room = "2.6.1"
+datastore = "1.1.1"
+coroutinesTest = "1.9.0"
+mockitoCore = "5.14.2"
+mockitoKotlin = "5.4.0"
 junit = "4.13.2"
 
 [libraries]
@@ -27,6 +32,13 @@ compose-material-icons-extended = { group = "androidx.compose.material", name = 
 hilt-android = { group = "com.google.dagger", name = "hilt-android", version.ref = "hilt" }
 hilt-compiler = { group = "com.google.dagger", name = "hilt-compiler", version.ref = "hilt" }
 hilt-navigation-compose = { group = "androidx.hilt", name = "hilt-navigation-compose", version.ref = "hiltNavigationCompose" }
+androidx-room-runtime = { group = "androidx.room", name = "room-runtime", version.ref = "room" }
+androidx-room-ktx = { group = "androidx.room", name = "room-ktx", version.ref = "room" }
+androidx-room-compiler = { group = "androidx.room", name = "room-compiler", version.ref = "room" }
+androidx-datastore-preferences = { group = "androidx.datastore", name = "datastore-preferences", version.ref = "datastore" }
+kotlinx-coroutines-test = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-test", version.ref = "coroutinesTest" }
+mockito-core = { group = "org.mockito", name = "mockito-core", version.ref = "mockitoCore" }
+mockito-kotlin = { group = "org.mockito.kotlin", name = "mockito-kotlin", version.ref = "mockitoKotlin" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
 
 [plugins]

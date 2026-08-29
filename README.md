@@ -41,5 +41,9 @@ app/src/main/java/com/classicbookreader/app/
 └── feature/<name>/      # one package per feature (home, library, ...)
 ```
 
-Phase status: **Phase 0 (foundation) complete** — theme, shared
-components, navigation shell, CI. Reader (Phase 1) is next.
+Phase status: **Phase 1 (core reader) complete** — Room + DataStore,
+PDF import via SAF (copied into app storage, cover generated), library
+grid, one-time onboarding, PdfRenderer-based reader (vertical pager,
+pinch zoom, ±2-page LRU bitmap cache, reading-progress persistence),
+home "continue reading" tile. The AI circle pill is a visible
+placeholder for Phase 2.
