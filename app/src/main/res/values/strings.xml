@@ -75,6 +75,7 @@
     <string name="translate_cached">Halaman ini di-cache</string>
     <string name="translate_retranslate">Terjemahkan ulang</string>
     <string name="translate_rate_limited">Terlalu banyak permintaan — coba sebentar lagi</string>
+    <string name="translate_busy">Tunggu terjemahan halaman lain selesai dulu</string>
     <string name="translate_text_size">Ukuran teks</string>
 
     <!-- Circle-to-analyze -->

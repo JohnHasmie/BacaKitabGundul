@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
@@ -149,11 +150,15 @@ private fun TranslationLines(
     )
 
     LazyColumn(
-        modifier = modifier.fillMaxSize(),
+        // statusBarsPadding + fixed offset so a tall cutout can't push the
+        // chrome over the first row.
+        modifier = modifier
+            .fillMaxSize()
+            .statusBarsPadding(),
         contentPadding = PaddingValues(
             start = Spacing.xl,
             end = Spacing.xl,
-            top = 96.dp, // clears the reader chrome
+            top = 80.dp, // clears the reader chrome below the status bar
         ),
         verticalArrangement = Arrangement.spacedBy(Spacing.lg),
     ) {

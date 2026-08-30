@@ -142,6 +142,7 @@ private fun AnalysisFailed(reason: AnalysisEvent.FailureReason, onRetry: () -> U
                 when (reason) {
                     AnalysisEvent.FailureReason.NETWORK -> R.string.ai_failed_network
                     AnalysisEvent.FailureReason.SERVER -> R.string.ai_failed_server
+                    AnalysisEvent.FailureReason.RATE_LIMITED -> R.string.translate_rate_limited
                 },
             ),
             style = MaterialTheme.typography.titleMedium,

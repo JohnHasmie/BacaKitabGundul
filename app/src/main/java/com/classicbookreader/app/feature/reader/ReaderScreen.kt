@@ -91,6 +91,8 @@ fun ReaderScreen(
                     snackbarHostState.showSnackbar(context.getString(R.string.ai_word_saved))
                 ReaderEvent.ReportAcknowledged ->
                     snackbarHostState.showSnackbar(context.getString(R.string.ai_report_thanks))
+                ReaderEvent.TranslationBusy ->
+                    snackbarHostState.showSnackbar(context.getString(R.string.translate_busy))
             }
         }
     }
@@ -171,6 +173,9 @@ private fun ReaderContent(
     onBack: () -> Unit,
 ) {
     var isZoomed by remember { mutableStateOf(false) }
+    // Live slider feedback: chips resize during the drag; DataStore is only
+    // written on release (via onTextScaleChanged).
+    var previewScale by remember(translationTextScale) { mutableFloatStateOf(translationTextScale) }
     val aiActive = ai !is AiUiState.Off
     val pagerState = rememberPagerState(initialPage = meta.initialPage) { meta.pageCount }
 
@@ -189,14 +194,14 @@ private fun ReaderContent(
         VerticalPager(
             state = pagerState,
             beyondViewportPageCount = 1,
-            userScrollEnabled = translationMode || (!isZoomed && !aiActive),
+            userScrollEnabled = !aiActive && (translationMode || !isZoomed),
             modifier = Modifier.fillMaxSize(),
         ) { pageIndex ->
             if (translationMode) {
                 LaunchedEffect(pageIndex) { onLoadCachedTranslation(pageIndex) }
                 TranslationPageView(
                     state = translations[pageIndex] ?: ReaderViewModel.TranslationUiState.Idle,
-                    textScale = translationTextScale,
+                    textScale = previewScale,
                     onTranslate = { onTranslatePage(pageIndex) },
                     onRetranslate = { onRetranslatePage(pageIndex) },
                     onWordTap = { word -> onWordTap(pageIndex, word) },
@@ -235,8 +240,9 @@ private fun ReaderContent(
 
             if (translationMode) {
                 TextScaleFooter(
-                    scale = translationTextScale,
-                    onScaleChanged = onTextScaleChanged,
+                    scale = previewScale,
+                    onPreview = { previewScale = it },
+                    onCommit = { onTextScaleChanged(previewScale) },
                     modifier = Modifier
                         .align(Alignment.BottomCenter)
                         .navigationBarsPadding()
@@ -267,10 +273,10 @@ private fun ReaderContent(
 @Composable
 private fun TextScaleFooter(
     scale: Float,
-    onScaleChanged: (Float) -> Unit,
+    onPreview: (Float) -> Unit,
+    onCommit: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    var value by remember(scale) { mutableFloatStateOf(scale) }
     GlassCard(cornerRadius = Radius.pill, modifier = modifier) {
         Row(
             verticalAlignment = Alignment.CenterVertically,
@@ -283,10 +289,10 @@ private fun TextScaleFooter(
                 color = AppTheme.glass.inkTertiary,
             )
             Slider(
-                value = value,
-                onValueChange = { value = it },
+                value = scale,
+                onValueChange = onPreview,
                 // Persisted on release only, not per drag frame.
-                onValueChangeFinished = { onScaleChanged(value) },
+                onValueChangeFinished = onCommit,
                 valueRange = 0.7f..1.6f,
                 modifier = Modifier.width(180.dp),
             )

@@ -99,6 +99,7 @@ class ReaderViewModel @Inject constructor(
     sealed interface ReaderEvent {
         data object WordSaved : ReaderEvent
         data object ReportAcknowledged : ReaderEvent
+        data object TranslationBusy : ReaderEvent
     }
 
     private val bookId: Long = checkNotNull(savedStateHandle["bookId"])
@@ -206,12 +207,12 @@ class ReaderViewModel @Inject constructor(
         stateFlow.update { state ->
             state.copy(
                 currentPage = pageIndex,
-                // Prune Ready results outside the pager window: they rehydrate
-                // from Room instantly, and a 300-page kitab must not pile up
-                // 300 parsed translations in the state.
+                // Prune results outside the pager window (in-flight pages stay):
+                // Ready entries rehydrate from Room instantly, and a 300-page
+                // kitab must not pile up 300 parsed translations in the state.
                 translations = state.translations.filterKeys { page ->
                     kotlin.math.abs(page - pageIndex) <= 2 ||
-                        state.translations[page] !is TranslationUiState.Ready
+                        state.translations[page] is TranslationUiState.Loading
                 },
             )
         }
@@ -251,12 +252,22 @@ class ReaderViewModel @Inject constructor(
     fun translatePage(pageIndex: Int) {
         val meta = stateFlow.value.meta
         if (meta !is UiState.Content) return
-        if (translationJobs[pageIndex]?.isActive == true) return
-        // Only one paid translation at a time.
-        if (translationJobs.values.any { it.isActive }) return
+        translationJobs.entries.removeAll { !it.value.isActive }
+        if (translationJobs.containsKey(pageIndex)) return
+        // Only one paid translation at a time; tell the user, don't no-op.
+        if (translationJobs.isNotEmpty()) {
+            viewModelScope.launch { eventChannel.send(ReaderEvent.TranslationBusy) }
+            return
+        }
 
         translationJobs[pageIndex] = viewModelScope.launch {
             updateTranslation(pageIndex, TranslationUiState.Loading(0))
+
+            // A cache hit must not pay the hi-res render below.
+            translationRepository.getCached(bookId, pageIndex + 1)?.let {
+                updateTranslation(pageIndex, TranslationUiState.Ready(it, fromCache = true))
+                return@launch
+            }
 
             // One-shot hi-res render, deliberately NOT through the pager cache.
             val pageBitmap = try {
@@ -272,10 +283,12 @@ class ReaderViewModel @Inject constructor(
                 return@launch
             }
 
-            val jpeg = withContext(Dispatchers.Default) {
-                encodeJpeg(pageBitmap, maxBytes = PAGE_JPEG_BYTES).also {
-                    pageBitmap.recycle() // one-shot render, not cached anywhere
+            val jpeg = try {
+                withContext(Dispatchers.Default) {
+                    encodeJpeg(pageBitmap, maxBytes = PAGE_JPEG_BYTES)
                 }
+            } finally {
+                pageBitmap.recycle() // one-shot render; also on cancellation
             }
 
             val request = PageTranslationRequest(
@@ -301,7 +314,14 @@ class ReaderViewModel @Inject constructor(
 
     /** "Terjemahkan ulang": drop the cached page and request a fresh one. */
     fun retranslatePage(pageIndex: Int) {
-        if (translationJobs.values.any { it.isActive }) return
+        // Same guards as translatePage, BEFORE deleting the cached page —
+        // otherwise a bail-out would strand the user on an empty prompt.
+        if (stateFlow.value.meta !is UiState.Content) return
+        translationJobs.entries.removeAll { !it.value.isActive }
+        if (translationJobs.isNotEmpty()) {
+            viewModelScope.launch { eventChannel.send(ReaderEvent.TranslationBusy) }
+            return
+        }
         viewModelScope.launch {
             translationRepository.invalidate(bookId, pageIndex + 1)
             updateTranslation(pageIndex, TranslationUiState.Idle)
@@ -396,15 +416,17 @@ class ReaderViewModel @Inject constructor(
         val meta = stateFlow.value.meta
         if (meta !is UiState.Content) return
         val box = word.bbox
+        val fallback = NormalizedRect(0.4f, 0.45f, 0.6f, 0.55f)
         val selection = if (box.w > 0f && box.h > 0f) {
             NormalizedRect(
                 left = box.x.coerceIn(0f, 1f),
                 top = box.y.coerceIn(0f, 1f),
                 right = (box.x + box.w).coerceIn(0f, 1f),
                 bottom = (box.y + box.h).coerceIn(0f, 1f),
-            )
+            ).takeIf { it.width > 0f && it.height > 0f } ?: fallback
+            // An out-of-range bbox collapses to zero area after clamping.
         } else {
-            NormalizedRect(0.4f, 0.45f, 0.6f, 0.55f)
+            fallback
         }
 
         analysisJob?.cancel()
