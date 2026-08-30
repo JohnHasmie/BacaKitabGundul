@@ -14,11 +14,15 @@ import com.classicbookreader.app.data.analysis.AnalysisRepository
 import com.classicbookreader.app.data.analysis.DefaultAnalysisRepository
 import com.classicbookreader.app.data.db.AnalysisCacheDao
 import com.classicbookreader.app.data.db.MIGRATION_1_2
+import com.classicbookreader.app.data.db.MIGRATION_2_3
+import com.classicbookreader.app.data.db.PageTranslationCacheDao
 import com.classicbookreader.app.data.db.SavedWordDao
 import com.classicbookreader.app.data.repository.BookRepository
 import com.classicbookreader.app.data.repository.DefaultBookRepository
 import com.classicbookreader.app.data.repository.DefaultSavedWordRepository
 import com.classicbookreader.app.data.repository.SavedWordRepository
+import com.classicbookreader.app.data.translation.DefaultPageTranslationRepository
+import com.classicbookreader.app.data.translation.PageTranslationRepository
 import dagger.Binds
 import dagger.Module
 import dagger.Provides
@@ -38,7 +42,7 @@ object DataModule {
     @Singleton
     fun provideDatabase(@ApplicationContext context: Context): AppDatabase =
         Room.databaseBuilder(context, AppDatabase::class.java, "classic_book_reader.db")
-            .addMigrations(MIGRATION_1_2)
+            .addMigrations(MIGRATION_1_2, MIGRATION_2_3)
             .build()
 
     @Provides
@@ -49,6 +53,10 @@ object DataModule {
 
     @Provides
     fun provideAnalysisCacheDao(database: AppDatabase): AnalysisCacheDao = database.analysisCacheDao()
+
+    @Provides
+    fun providePageTranslationCacheDao(database: AppDatabase): PageTranslationCacheDao =
+        database.pageTranslationCacheDao()
 
     @Provides
     @Singleton
@@ -89,4 +97,9 @@ abstract class DataBindingsModule {
 
     @Binds
     abstract fun bindSavedWordRepository(implementation: DefaultSavedWordRepository): SavedWordRepository
+
+    @Binds
+    abstract fun bindPageTranslationRepository(
+        implementation: DefaultPageTranslationRepository,
+    ): PageTranslationRepository
 }

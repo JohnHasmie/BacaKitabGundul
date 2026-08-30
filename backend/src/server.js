@@ -1,6 +1,7 @@
 import { createServer } from "node:http";
 import { pathToFileURL } from "node:url";
 import { runAnalysis } from "./analyze.js";
+import { runPageTranslation } from "./pageTranslate.js";
 
 const PORT = Number(process.env.PORT || 8787);
 const MAX_BODY_BYTES = 4 * 1024 * 1024;
@@ -47,6 +48,23 @@ function sendJson(res, status, payload) {
   res.end(JSON.stringify(payload));
 }
 
+// Every AI endpoint speaks the same SSE envelope protocol; each route wires
+// its own sink shape onto the shared send function.
+const sseRoutes = {
+  "/v1/analyze": (body, send) =>
+    runAnalysis(body, {
+      partial: (vocalizedText) => send({ type: "partial", vocalizedText }),
+      complete: (result) => send({ type: "complete", result }),
+      error: (message) => send({ type: "error", message }),
+    }),
+  "/v1/page-translate": (body, send) =>
+    runPageTranslation(body, {
+      progress: (wordCount) => send({ type: "progress", wordCount }),
+      complete: (result) => send({ type: "complete", result }),
+      error: (message) => send({ type: "error", message }),
+    }),
+};
+
 export function createAppServer() {
   return createServer(async (req, res) => {
     const path = new URL(req.url ?? "/", "http://localhost").pathname;
@@ -54,7 +72,8 @@ export function createAppServer() {
       sendJson(res, 200, { ok: true });
       return;
     }
-    if (req.method !== "POST" || path !== "/v1/analyze") {
+    const route = req.method === "POST" ? sseRoutes[path] : undefined;
+    if (!route) {
       sendJson(res, 404, { error: "Not found" });
       return;
     }
@@ -89,13 +108,9 @@ export function createAppServer() {
     };
 
     try {
-      await runAnalysis(body, {
-        partial: (vocalizedText) => send({ type: "partial", vocalizedText }),
-        complete: (result) => send({ type: "complete", result }),
-        error: (message) => send({ type: "error", message }),
-      });
+      await route(body, send);
     } catch {
-      send({ type: "error", message: "Analysis failed" });
+      send({ type: "error", message: "Request failed" });
     }
     if (!res.writableEnded) res.end();
   });

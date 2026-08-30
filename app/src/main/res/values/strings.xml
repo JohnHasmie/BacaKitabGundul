@@ -65,6 +65,18 @@
     <string name="reader_open_error">Tidak bisa membuka kitab</string>
     <string name="reader_back">Kembali</string>
 
+    <!-- Interlinear translation (screen 9) -->
+    <string name="translate_toggle">Terjemah per kata</string>
+    <string name="translate_prompt_title">Terjemah per kata</string>
+    <string name="translate_prompt_body">Terjemahkan seluruh halaman ini kata per kata dengan AI. Hasilnya disimpan sehingga tidak perlu diterjemahkan dua kali.</string>
+    <string name="translate_action">Terjemahkan halaman ini</string>
+    <string name="translate_in_progress">Menerjemahkan…</string>
+    <string name="translate_word_count">%1$d kata</string>
+    <string name="translate_cached">Halaman ini di-cache</string>
+    <string name="translate_retranslate">Terjemahkan ulang</string>
+    <string name="translate_rate_limited">Terlalu banyak permintaan — coba sebentar lagi</string>
+    <string name="translate_text_size">Ukuran teks</string>
+
     <!-- Circle-to-analyze -->
     <string name="reader_ai_hint">Lingkari kata atau kalimatnya</string>
     <string name="reader_ai_exit">Keluar dari mode AI</string>

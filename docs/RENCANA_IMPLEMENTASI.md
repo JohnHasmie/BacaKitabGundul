@@ -301,6 +301,9 @@ Skema (English, snake_case):
   diimplementasikan di Fase 2 (DB v2); bbox dikuantisasi grid 1/200 agar
   lingkaran yang sedikit bergeser tetap kena cache
 - `page_translation_cache(book_id, page_number, response_json, created_at)`
+  — diimplementasikan di Fase 3 (DB v3); kunci `(book_id, page_number)`
+  dipilih alih-alih hash gambar: file PDF impor tidak pernah berubah,
+  jadi kunci komposit sama stabilnya tanpa biaya hashing
 - `insight_cache(root, response_json, created_at)` — salinan lokal dari
   cache global backend (tab Wawasan)
 - Preferensi (font_size, show_transliteration, context_length, theme) di

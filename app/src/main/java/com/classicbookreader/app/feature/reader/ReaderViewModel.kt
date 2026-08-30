@@ -8,6 +8,7 @@ import com.classicbookreader.app.core.cache.LruPageCache
 import com.classicbookreader.app.core.cache.LruPageCache.PageKey
 import com.classicbookreader.app.core.reader.prefetchWindow
 import com.classicbookreader.app.core.selection.AnalysisCacheKey
+import com.classicbookreader.app.core.selection.NormalizedRect
 import com.classicbookreader.app.core.selection.SelectionGeometry
 import com.classicbookreader.app.core.selection.SelectionPoint
 import com.classicbookreader.app.data.analysis.AnalysisEvent
@@ -18,8 +19,14 @@ import com.classicbookreader.app.data.analysis.WordAnalysis
 import com.classicbookreader.app.data.pdf.PdfPageSource
 import com.classicbookreader.app.data.pdf.PdfPageSourceFactory
 import com.classicbookreader.app.data.prefs.UserPreferencesRepository
+import com.classicbookreader.app.core.util.encodeJpeg
 import com.classicbookreader.app.data.repository.BookRepository
 import com.classicbookreader.app.data.repository.SavedWordRepository
+import com.classicbookreader.app.data.translation.PageTranslation
+import com.classicbookreader.app.data.translation.PageTranslationEvent
+import com.classicbookreader.app.data.translation.PageTranslationRepository
+import com.classicbookreader.app.data.translation.PageTranslationRequest
+import com.classicbookreader.app.data.translation.TranslatedWord
 import com.classicbookreader.app.ui.components.UiState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Deferred
@@ -40,7 +47,6 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
-import java.io.ByteArrayOutputStream
 import java.io.File
 import javax.inject.Inject
 
@@ -51,7 +57,8 @@ class ReaderViewModel @Inject constructor(
     private val sourceFactory: PdfPageSourceFactory,
     private val analysisRepository: AnalysisRepository,
     private val savedWordRepository: SavedWordRepository,
-    preferences: UserPreferencesRepository,
+    private val translationRepository: PageTranslationRepository,
+    private val preferences: UserPreferencesRepository,
 ) : ViewModel() {
 
     data class BookMeta(
@@ -71,10 +78,22 @@ class ReaderViewModel @Inject constructor(
         data class Failed(val reason: AnalysisEvent.FailureReason) : AiUiState
     }
 
+    /** Per-page state of the interlinear view (mockup screen 9). */
+    sealed interface TranslationUiState {
+        data object Idle : TranslationUiState
+        data class Loading(val wordCount: Int) : TranslationUiState
+        data class Ready(val translation: PageTranslation, val fromCache: Boolean) : TranslationUiState
+        data class Failed(val reason: AnalysisEvent.FailureReason) : TranslationUiState
+    }
+
     data class ReaderState(
         val meta: UiState<BookMeta> = UiState.Loading,
         val currentPage: Int = 0,
         val ai: AiUiState = AiUiState.Off,
+        val translationMode: Boolean = false,
+        // Keyed per page: the pager composes neighbors, so a single
+        // "current page" state would paint the wrong page's words.
+        val translations: Map<Int, TranslationUiState> = emptyMap(),
     )
 
     sealed interface ReaderEvent {
@@ -92,6 +111,10 @@ class ReaderViewModel @Inject constructor(
         .map { it.isBlank() }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), true)
 
+    /** Font scale for the interlinear view, persisted in DataStore. */
+    val translationTextScale: StateFlow<Float> = preferences.translationTextScale
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), 1f)
+
     private val eventChannel = Channel<ReaderEvent>(Channel.BUFFERED)
     val events: Flow<ReaderEvent> = eventChannel.receiveAsFlow()
 
@@ -105,6 +128,7 @@ class ReaderViewModel @Inject constructor(
     private var saveJob: Job? = null
     private var analysisJob: Job? = null
     private var lastAnalysis: Pair<String, AnalysisRequest>? = null
+    private val translationJobs = mutableMapOf<Int, Job>()
 
     init {
         viewModelScope.launch {
@@ -179,7 +203,18 @@ class ReaderViewModel @Inject constructor(
     }
 
     fun onPageSettled(pageIndex: Int) {
-        stateFlow.update { it.copy(currentPage = pageIndex) }
+        stateFlow.update { state ->
+            state.copy(
+                currentPage = pageIndex,
+                // Prune Ready results outside the pager window: they rehydrate
+                // from Room instantly, and a 300-page kitab must not pile up
+                // 300 parsed translations in the state.
+                translations = state.translations.filterKeys { page ->
+                    kotlin.math.abs(page - pageIndex) <= 2 ||
+                        state.translations[page] !is TranslationUiState.Ready
+                },
+            )
+        }
         saveJob?.cancel()
         saveJob = viewModelScope.launch {
             delay(500)
@@ -194,10 +229,98 @@ class ReaderViewModel @Inject constructor(
         viewModelScope.launch { repository.saveReadingProgress(bookId, page) }
     }
 
+    // ---- Interlinear translation (mockup screen 9) -------------------------
+
+    fun toggleTranslationMode() {
+        analysisJob?.cancel()
+        // Translate mode and AI circle mode are mutually exclusive: the lasso
+        // maps onto the page bitmap, which the chips view replaces.
+        stateFlow.update { it.copy(translationMode = !it.translationMode, ai = AiUiState.Off) }
+    }
+
+    /** Cheap Room lookup on page composition — shows cached pages instantly. */
+    fun loadCachedTranslation(pageIndex: Int) {
+        if (stateFlow.value.translations[pageIndex] != null) return
+        viewModelScope.launch {
+            val cached = translationRepository.getCached(bookId, pageIndex + 1) ?: return@launch
+            updateTranslation(pageIndex, TranslationUiState.Ready(cached, fromCache = true))
+        }
+    }
+
+    /** Explicit per-page action ("Terjemahkan halaman ini") — cost control. */
+    fun translatePage(pageIndex: Int) {
+        val meta = stateFlow.value.meta
+        if (meta !is UiState.Content) return
+        if (translationJobs[pageIndex]?.isActive == true) return
+        // Only one paid translation at a time.
+        if (translationJobs.values.any { it.isActive }) return
+
+        translationJobs[pageIndex] = viewModelScope.launch {
+            updateTranslation(pageIndex, TranslationUiState.Loading(0))
+
+            // One-shot hi-res render, deliberately NOT through the pager cache.
+            val pageBitmap = try {
+                source?.renderPage(pageIndex, ANALYSIS_RENDER_WIDTH_PX)
+            } catch (_: Exception) {
+                null
+            }
+            if (pageBitmap == null) {
+                updateTranslation(
+                    pageIndex,
+                    TranslationUiState.Failed(AnalysisEvent.FailureReason.SERVER),
+                )
+                return@launch
+            }
+
+            val jpeg = withContext(Dispatchers.Default) {
+                encodeJpeg(pageBitmap, maxBytes = PAGE_JPEG_BYTES).also {
+                    pageBitmap.recycle() // one-shot render, not cached anywhere
+                }
+            }
+
+            val request = PageTranslationRequest(
+                jpegImage = jpeg,
+                bookTitle = meta.data.title,
+                pageNumber = pageIndex + 1,
+            )
+            translationRepository.translate(bookId, pageIndex + 1, request).collect { event ->
+                updateTranslation(
+                    pageIndex,
+                    when (event) {
+                        is PageTranslationEvent.Progress ->
+                            TranslationUiState.Loading(event.wordCount)
+                        is PageTranslationEvent.Complete ->
+                            TranslationUiState.Ready(event.result, event.fromCache)
+                        is PageTranslationEvent.Failed ->
+                            TranslationUiState.Failed(event.reason)
+                    },
+                )
+            }
+        }
+    }
+
+    /** "Terjemahkan ulang": drop the cached page and request a fresh one. */
+    fun retranslatePage(pageIndex: Int) {
+        if (translationJobs.values.any { it.isActive }) return
+        viewModelScope.launch {
+            translationRepository.invalidate(bookId, pageIndex + 1)
+            updateTranslation(pageIndex, TranslationUiState.Idle)
+            translatePage(pageIndex)
+        }
+    }
+
+    fun setTranslationTextScale(value: Float) {
+        viewModelScope.launch { preferences.setTranslationTextScale(value) }
+    }
+
+    private fun updateTranslation(pageIndex: Int, state: TranslationUiState) {
+        stateFlow.update { it.copy(translations = it.translations + (pageIndex to state)) }
+    }
+
     // ---- Circle-to-analyze -------------------------------------------------
 
     fun enterAiMode() {
-        stateFlow.update { it.copy(ai = AiUiState.Selecting) }
+        stateFlow.update { it.copy(ai = AiUiState.Selecting, translationMode = false) }
     }
 
     fun exitAiMode() {
@@ -205,10 +328,15 @@ class ReaderViewModel @Inject constructor(
         stateFlow.update { it.copy(ai = AiUiState.Off) }
     }
 
-    /** Sheet dismissed → back to selection so another circle can follow. */
+    /**
+     * Sheet dismissed → back to selection so another circle can follow, or
+     * fully off when the analysis came from a translate-mode word tap.
+     */
     fun dismissAnalysis() {
         analysisJob?.cancel()
-        stateFlow.update { it.copy(ai = AiUiState.Selecting) }
+        stateFlow.update {
+            it.copy(ai = if (it.translationMode) AiUiState.Off else AiUiState.Selecting)
+        }
     }
 
     fun retryAnalysis() {
@@ -251,37 +379,83 @@ class ReaderViewModel @Inject constructor(
             )
             if (selection == null) {
                 // Stroke never touched the page — stay in selection mode.
+                pageBitmap.recycle()
                 stateFlow.update { it.copy(ai = AiUiState.Selecting) }
                 return@launch
             }
-
-            val request = withContext(Dispatchers.Default) {
-                val aspect = pageBitmap.height.toFloat() / pageBitmap.width.toFloat()
-                val cropRect = SelectionGeometry.expandWithContext(selection, pageAspectRatio = aspect)
-                val cropPixels = SelectionGeometry.toPixelRect(cropRect, pageBitmap.width, pageBitmap.height)
-                val cropped = Bitmap.createBitmap(
-                    pageBitmap, cropPixels.left, cropPixels.top, cropPixels.width, cropPixels.height,
-                )
-                val jpeg = encodeJpeg(cropped)
-                if (cropped !== pageBitmap) cropped.recycle()
-                pageBitmap.recycle() // one-shot render, not cached anywhere
-                AnalysisRequest(
-                    jpegImage = jpeg,
-                    selectionBbox = SelectionGeometry.selectionWithinCrop(
-                        selection = selection,
-                        crop = cropRect,
-                        cropWidthPx = cropPixels.width,
-                        cropHeightPx = cropPixels.height,
-                    ),
-                    bookTitle = meta.data.title,
-                    pageNumber = page + 1,
-                )
-            }
-
-            val cacheKey = AnalysisCacheKey.forSelection(bookId, page, selection)
-            lastAnalysis = cacheKey to request
-            collectAnalysis(cacheKey, request)
+            analyzeRegion(meta.data, page, pageBitmap, selection)
         }
+    }
+
+    /**
+     * Translate-mode entry point: tapping a word chip analyzes it via the
+     * backend's advisory bbox. Words without a usable bbox fall back to a
+     * page-center region (harmless in demo mode, whose result is fixed).
+     */
+    fun analyzeTranslatedWord(pageIndex: Int, word: TranslatedWord) {
+        val meta = stateFlow.value.meta
+        if (meta !is UiState.Content) return
+        val box = word.bbox
+        val selection = if (box.w > 0f && box.h > 0f) {
+            NormalizedRect(
+                left = box.x.coerceIn(0f, 1f),
+                top = box.y.coerceIn(0f, 1f),
+                right = (box.x + box.w).coerceIn(0f, 1f),
+                bottom = (box.y + box.h).coerceIn(0f, 1f),
+            )
+        } else {
+            NormalizedRect(0.4f, 0.45f, 0.6f, 0.55f)
+        }
+
+        analysisJob?.cancel()
+        analysisJob = viewModelScope.launch {
+            stateFlow.update { it.copy(ai = AiUiState.Preparing) }
+            val pageBitmap = try {
+                source?.renderPage(pageIndex, ANALYSIS_RENDER_WIDTH_PX)
+            } catch (_: Exception) {
+                null
+            }
+            if (pageBitmap == null) {
+                stateFlow.update { it.copy(ai = AiUiState.Failed(AnalysisEvent.FailureReason.SERVER)) }
+                return@launch
+            }
+            analyzeRegion(meta.data, pageIndex, pageBitmap, selection)
+        }
+    }
+
+    /** Shared tail of both analysis entry points: crop → JPEG → stream. */
+    private suspend fun analyzeRegion(
+        meta: BookMeta,
+        page: Int,
+        pageBitmap: Bitmap,
+        selection: NormalizedRect,
+    ) {
+        val request = withContext(Dispatchers.Default) {
+            val aspect = pageBitmap.height.toFloat() / pageBitmap.width.toFloat()
+            val cropRect = SelectionGeometry.expandWithContext(selection, pageAspectRatio = aspect)
+            val cropPixels = SelectionGeometry.toPixelRect(cropRect, pageBitmap.width, pageBitmap.height)
+            val cropped = Bitmap.createBitmap(
+                pageBitmap, cropPixels.left, cropPixels.top, cropPixels.width, cropPixels.height,
+            )
+            val jpeg = encodeJpeg(cropped, maxBytes = MAX_JPEG_BYTES)
+            if (cropped !== pageBitmap) cropped.recycle()
+            pageBitmap.recycle() // one-shot render, not cached anywhere
+            AnalysisRequest(
+                jpegImage = jpeg,
+                selectionBbox = SelectionGeometry.selectionWithinCrop(
+                    selection = selection,
+                    crop = cropRect,
+                    cropWidthPx = cropPixels.width,
+                    cropHeightPx = cropPixels.height,
+                ),
+                bookTitle = meta.title,
+                pageNumber = page + 1,
+            )
+        }
+
+        val cacheKey = AnalysisCacheKey.forSelection(bookId, page, selection)
+        lastAnalysis = cacheKey to request
+        collectAnalysis(cacheKey, request)
     }
 
     private fun runAnalysis(cacheKey: String, request: AnalysisRequest) {
@@ -319,17 +493,6 @@ class ReaderViewModel @Inject constructor(
         viewModelScope.launch { eventChannel.send(ReaderEvent.ReportAcknowledged) }
     }
 
-    private fun encodeJpeg(bitmap: Bitmap, maxBytes: Int = MAX_JPEG_BYTES): ByteArray {
-        var quality = 85
-        while (true) {
-            val stream = ByteArrayOutputStream()
-            bitmap.compress(Bitmap.CompressFormat.JPEG, quality, stream)
-            val bytes = stream.toByteArray()
-            if (bytes.size <= maxBytes || quality <= 40) return bytes
-            quality -= 15
-        }
-    }
-
     override fun onCleared() {
         // Snapshot: cancelled tasks mutate the map from their catch blocks.
         inFlight.values.toList().forEach { it.cancel() }
@@ -339,8 +502,9 @@ class ReaderViewModel @Inject constructor(
     }
 
     private companion object {
-        /** ~200dpi on a typical kitab page; shares the render cache with the pager. */
+        /** ~200dpi on a typical kitab page. */
         const val ANALYSIS_RENDER_WIDTH_PX = 1600
         const val MAX_JPEG_BYTES = 300_000
+        const val PAGE_JPEG_BYTES = 500_000
     }
 }

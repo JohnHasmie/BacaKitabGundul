@@ -60,7 +60,7 @@ sealed interface AnalysisEvent {
 
     data class Failed(val reason: FailureReason) : AnalysisEvent
 
-    enum class FailureReason { NETWORK, SERVER }
+    enum class FailureReason { NETWORK, SERVER, RATE_LIMITED }
 }
 
 /** One way of producing an analysis (remote backend, demo, …). */

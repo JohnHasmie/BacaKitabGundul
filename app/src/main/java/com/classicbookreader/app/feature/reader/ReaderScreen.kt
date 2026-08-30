@@ -11,15 +11,18 @@ import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.pager.VerticalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.AutoAwesome
+import androidx.compose.material.icons.outlined.Translate
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Slider
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
@@ -27,6 +30,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
@@ -46,6 +50,7 @@ import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.classicbookreader.app.R
 import com.classicbookreader.app.core.selection.SelectionPoint
+import com.classicbookreader.app.data.translation.TranslatedWord
 import com.classicbookreader.app.feature.reader.ReaderViewModel.AiUiState
 import com.classicbookreader.app.feature.reader.ReaderViewModel.ReaderEvent
 import com.classicbookreader.app.ui.components.GlassCard
@@ -66,6 +71,7 @@ fun ReaderScreen(
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
     val isDemoMode by viewModel.isDemoMode.collectAsStateWithLifecycle()
+    val translationTextScale by viewModel.translationTextScale.collectAsStateWithLifecycle()
     val snackbarHostState = remember { SnackbarHostState() }
     val context = LocalContext.current
     val lifecycleOwner = LocalLifecycleOwner.current
@@ -102,11 +108,20 @@ fun ReaderScreen(
                 meta = meta.data,
                 currentPage = state.currentPage,
                 ai = state.ai,
+                translationMode = state.translationMode,
+                translations = state.translations,
+                translationTextScale = translationTextScale,
                 pageBitmap = viewModel::pageBitmap,
                 onPageSettled = viewModel::onPageSettled,
                 onEnterAiMode = viewModel::enterAiMode,
                 onExitAiMode = viewModel::exitAiMode,
                 onStrokeFinished = viewModel::onSelectionDrawn,
+                onToggleTranslate = viewModel::toggleTranslationMode,
+                onLoadCachedTranslation = viewModel::loadCachedTranslation,
+                onTranslatePage = viewModel::translatePage,
+                onRetranslatePage = viewModel::retranslatePage,
+                onWordTap = viewModel::analyzeTranslatedWord,
+                onTextScaleChanged = viewModel::setTranslationTextScale,
                 onBack = onBack,
             )
         }
@@ -139,11 +154,20 @@ private fun ReaderContent(
     meta: ReaderViewModel.BookMeta,
     currentPage: Int,
     ai: AiUiState,
+    translationMode: Boolean,
+    translations: Map<Int, ReaderViewModel.TranslationUiState>,
+    translationTextScale: Float,
     pageBitmap: suspend (pageIndex: Int, targetWidthPx: Int) -> Bitmap?,
     onPageSettled: (Int) -> Unit,
     onEnterAiMode: () -> Unit,
     onExitAiMode: () -> Unit,
     onStrokeFinished: (List<SelectionPoint>, Float, Float) -> Unit,
+    onToggleTranslate: () -> Unit,
+    onLoadCachedTranslation: (Int) -> Unit,
+    onTranslatePage: (Int) -> Unit,
+    onRetranslatePage: (Int) -> Unit,
+    onWordTap: (Int, TranslatedWord) -> Unit,
+    onTextScaleChanged: (Float) -> Unit,
     onBack: () -> Unit,
 ) {
     var isZoomed by remember { mutableStateOf(false) }
@@ -153,6 +177,11 @@ private fun ReaderContent(
     LaunchedEffect(pagerState) {
         snapshotFlow { pagerState.settledPage }.collect(onPageSettled)
     }
+    // ZoomablePage leaves composition in translate mode; without this a
+    // stale isZoomed=true would freeze the pager permanently.
+    LaunchedEffect(translationMode) {
+        if (translationMode) isZoomed = false
+    }
 
     BoxWithConstraints(modifier = Modifier.fillMaxSize()) {
         val targetWidthPx = min(constraints.maxWidth, MAX_RENDER_WIDTH_PX)
@@ -160,21 +189,32 @@ private fun ReaderContent(
         VerticalPager(
             state = pagerState,
             beyondViewportPageCount = 1,
-            userScrollEnabled = !isZoomed && !aiActive,
+            userScrollEnabled = translationMode || (!isZoomed && !aiActive),
             modifier = Modifier.fillMaxSize(),
         ) { pageIndex ->
-            val bitmap by produceState<Bitmap?>(initialValue = null, pageIndex, targetWidthPx) {
-                value = pageBitmap(pageIndex, targetWidthPx)
+            if (translationMode) {
+                LaunchedEffect(pageIndex) { onLoadCachedTranslation(pageIndex) }
+                TranslationPageView(
+                    state = translations[pageIndex] ?: ReaderViewModel.TranslationUiState.Idle,
+                    textScale = translationTextScale,
+                    onTranslate = { onTranslatePage(pageIndex) },
+                    onRetranslate = { onRetranslatePage(pageIndex) },
+                    onWordTap = { word -> onWordTap(pageIndex, word) },
+                )
+            } else {
+                val bitmap by produceState<Bitmap?>(initialValue = null, pageIndex, targetWidthPx) {
+                    value = pageBitmap(pageIndex, targetWidthPx)
+                }
+                ZoomablePage(
+                    bitmap = bitmap?.asImageBitmap(),
+                    // Entering AI mode resets zoom so gesture coordinates map 1:1.
+                    resetKey = pagerState.settledPage * 2 + if (aiActive) 1 else 0,
+                    onZoomChanged = { zoomed -> isZoomed = zoomed },
+                )
             }
-            ZoomablePage(
-                bitmap = bitmap?.asImageBitmap(),
-                // Entering AI mode resets zoom so gesture coordinates map 1:1.
-                resetKey = pagerState.settledPage * 2 + if (aiActive) 1 else 0,
-                onZoomChanged = { zoomed -> isZoomed = zoomed },
-            )
         }
 
-        if (aiActive) {
+        if (aiActive && !translationMode) {
             CircleSelectionOverlay(
                 onStrokeFinished = onStrokeFinished,
                 onExit = onExitAiMode,
@@ -184,6 +224,8 @@ private fun ReaderContent(
                 title = meta.title,
                 currentPage = currentPage,
                 pageCount = meta.pageCount,
+                isTranslateActive = translationMode,
+                onToggleTranslate = onToggleTranslate,
                 onBack = onBack,
                 modifier = Modifier
                     .align(Alignment.TopCenter)
@@ -191,21 +233,62 @@ private fun ReaderContent(
                     .padding(horizontal = Spacing.lg, vertical = Spacing.sm),
             )
 
-            PillButton(
-                text = stringResource(R.string.reader_circle_ai),
-                onClick = onEnterAiMode,
-                modifier = Modifier
-                    .align(Alignment.BottomCenter)
-                    .navigationBarsPadding()
-                    .padding(bottom = Spacing.xxl),
-                trailing = {
-                    Icon(
-                        imageVector = Icons.Filled.AutoAwesome,
-                        contentDescription = null,
-                        tint = AppTheme.glass.amber,
-                        modifier = Modifier.size(16.dp),
-                    )
-                },
+            if (translationMode) {
+                TextScaleFooter(
+                    scale = translationTextScale,
+                    onScaleChanged = onTextScaleChanged,
+                    modifier = Modifier
+                        .align(Alignment.BottomCenter)
+                        .navigationBarsPadding()
+                        .padding(bottom = Spacing.xxl),
+                )
+            } else {
+                PillButton(
+                    text = stringResource(R.string.reader_circle_ai),
+                    onClick = onEnterAiMode,
+                    modifier = Modifier
+                        .align(Alignment.BottomCenter)
+                        .navigationBarsPadding()
+                        .padding(bottom = Spacing.xxl),
+                    trailing = {
+                        Icon(
+                            imageVector = Icons.Filled.AutoAwesome,
+                            contentDescription = null,
+                            tint = AppTheme.glass.amber,
+                            modifier = Modifier.size(16.dp),
+                        )
+                    },
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun TextScaleFooter(
+    scale: Float,
+    onScaleChanged: (Float) -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    var value by remember(scale) { mutableFloatStateOf(scale) }
+    GlassCard(cornerRadius = Radius.pill, modifier = modifier) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(Spacing.md),
+            modifier = Modifier.padding(horizontal = Spacing.xl, vertical = Spacing.xs),
+        ) {
+            Text(
+                text = stringResource(R.string.translate_text_size),
+                style = MaterialTheme.typography.labelMedium,
+                color = AppTheme.glass.inkTertiary,
+            )
+            Slider(
+                value = value,
+                onValueChange = { value = it },
+                // Persisted on release only, not per drag frame.
+                onValueChangeFinished = { onScaleChanged(value) },
+                valueRange = 0.7f..1.6f,
+                modifier = Modifier.width(180.dp),
             )
         }
     }
@@ -216,6 +299,8 @@ private fun ReaderChrome(
     title: String,
     currentPage: Int,
     pageCount: Int,
+    isTranslateActive: Boolean,
+    onToggleTranslate: () -> Unit,
     onBack: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -255,6 +340,19 @@ private fun ReaderChrome(
                 ProgressRing(
                     progress = if (pageCount <= 0) 0f else (currentPage + 1f) / pageCount,
                     size = 34.dp,
+                )
+            }
+        }
+        GlassCard(cornerRadius = Radius.pill) {
+            IconButton(onClick = onToggleTranslate) {
+                Icon(
+                    imageVector = Icons.Outlined.Translate,
+                    contentDescription = stringResource(R.string.translate_toggle),
+                    tint = if (isTranslateActive) {
+                        MaterialTheme.colorScheme.primary
+                    } else {
+                        MaterialTheme.colorScheme.onBackground
+                    },
                 )
             }
         }

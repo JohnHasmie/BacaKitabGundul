@@ -2,6 +2,49 @@
  * Structured-output schema for /v1/analyze (plan §5), in Gemini's
  * responseSchema dialect (OpenAPI-flavored JSON schema).
  */
+/**
+ * Structured-output schema for /v1/page-translate (plan §5, §Fase 3):
+ * one lines[] entry per physical line, words in reading order (RTL),
+ * bbox normalized 0..1 and advisory only.
+ */
+export const pageTranslationResponseSchema = {
+  type: "OBJECT",
+  properties: {
+    lines: {
+      type: "ARRAY",
+      items: {
+        type: "OBJECT",
+        properties: {
+          words: {
+            type: "ARRAY",
+            items: {
+              type: "OBJECT",
+              properties: {
+                arabic: { type: "STRING" },
+                gloss: { type: "STRING" },
+                bbox: {
+                  type: "OBJECT",
+                  properties: {
+                    x: { type: "NUMBER" },
+                    y: { type: "NUMBER" },
+                    w: { type: "NUMBER" },
+                    h: { type: "NUMBER" },
+                  },
+                  required: ["x", "y", "w", "h"],
+                },
+              },
+              required: ["arabic", "gloss", "bbox"],
+            },
+          },
+        },
+        required: ["words"],
+      },
+    },
+    confidence: { type: "NUMBER" },
+  },
+  required: ["lines", "confidence"],
+};
+
 export const analysisResponseSchema = {
   type: "OBJECT",
   properties: {

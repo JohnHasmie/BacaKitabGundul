@@ -4,6 +4,7 @@ import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
+import androidx.datastore.preferences.core.floatPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
@@ -31,5 +32,19 @@ class UserPreferencesRepository @Inject constructor(
 
     suspend fun setBackendBaseUrl(value: String) {
         dataStore.edit { preferences -> preferences[backendBaseUrlKey] = value.trim() }
+    }
+
+    private val translationTextScaleKey = floatPreferencesKey("translation_text_scale")
+
+    /** Font scale for the interlinear view; written on drag end, not per frame. */
+    val translationTextScale: Flow<Float> =
+        dataStore.data.map { preferences ->
+            (preferences[translationTextScaleKey] ?: 1f).coerceIn(0.7f, 1.6f)
+        }
+
+    suspend fun setTranslationTextScale(value: Float) {
+        dataStore.edit { preferences ->
+            preferences[translationTextScaleKey] = value.coerceIn(0.7f, 1.6f)
+        }
     }
 }

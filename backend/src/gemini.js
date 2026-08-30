@@ -1,22 +1,30 @@
-import { buildSystemPrompt } from "./policy.js";
-import { analysisResponseSchema } from "./schema.js";
+import { buildSystemPrompt, buildPageTranslateSystemPrompt } from "./policy.js";
+import { analysisResponseSchema, pageTranslationResponseSchema } from "./schema.js";
 
 const DEFAULT_MODEL = "gemini-2.5-flash";
 const API_BASE = "https://generativelanguage.googleapis.com/v1beta";
 
 /**
- * Streams a structured analysis from Gemini. Async generator yielding the
- * accumulated JSON text after every chunk; the caller decides what counts as
- * a partial update. Model is configurable per deployment (plan §7: cheapest
- * viable first, model-agnostic layer).
+ * Generic structured-output streamer: async generator yielding the
+ * accumulated JSON text after every chunk; the caller decides what counts
+ * as a partial update. Model is configurable per deployment (plan §7:
+ * cheapest viable first, model-agnostic layer).
  */
-export async function* streamGeminiAnalysis(request, env = process.env, fetchImpl = fetch) {
+export async function* streamGeminiJson(
+  { systemPrompt, userParts, responseSchema, maxOutputTokens },
+  env = process.env,
+  fetchImpl = fetch,
+) {
   const apiKey = env.GEMINI_API_KEY;
   if (!apiKey) throw new Error("GEMINI_API_KEY is not configured");
   const model = env.MODEL_ID || DEFAULT_MODEL;
 
-  const { image, selectionBbox, bookContext, options } = request;
-  const userPrompt = buildUserPrompt({ selectionBbox, bookContext, options });
+  const generationConfig = {
+    responseMimeType: "application/json",
+    responseSchema,
+    temperature: 0.2,
+  };
+  if (maxOutputTokens) generationConfig.maxOutputTokens = maxOutputTokens;
 
   const response = await fetchImpl(
     `${API_BASE}/models/${model}:streamGenerateContent?alt=sse`,
@@ -27,21 +35,9 @@ export async function* streamGeminiAnalysis(request, env = process.env, fetchImp
         "x-goog-api-key": apiKey,
       },
       body: JSON.stringify({
-        systemInstruction: { parts: [{ text: buildSystemPrompt() }] },
-        contents: [
-          {
-            role: "user",
-            parts: [
-              { text: userPrompt },
-              { inlineData: { mimeType: "image/jpeg", data: image } },
-            ],
-          },
-        ],
-        generationConfig: {
-          responseMimeType: "application/json",
-          responseSchema: analysisResponseSchema,
-          temperature: 0.2,
-        },
+        systemInstruction: { parts: [{ text: systemPrompt }] },
+        contents: [{ role: "user", parts: userParts }],
+        generationConfig,
       }),
     },
   );
@@ -71,6 +67,41 @@ export async function* streamGeminiAnalysis(request, env = process.env, fetchImp
   }
 }
 
+/** /v1/analyze streamer — thin wrapper over [streamGeminiJson]. */
+export async function* streamGeminiAnalysis(request, env = process.env, fetchImpl = fetch) {
+  const { image, selectionBbox, bookContext, options } = request;
+  yield* streamGeminiJson(
+    {
+      systemPrompt: buildSystemPrompt(),
+      userParts: [
+        { text: buildUserPrompt({ selectionBbox, bookContext, options }) },
+        { inlineData: { mimeType: "image/jpeg", data: image } },
+      ],
+      responseSchema: analysisResponseSchema,
+    },
+    env,
+    fetchImpl,
+  );
+}
+
+/** /v1/page-translate streamer — a full page is the largest generation. */
+export async function* streamGeminiPageTranslation(request, env = process.env, fetchImpl = fetch) {
+  const { image, bookContext } = request;
+  yield* streamGeminiJson(
+    {
+      systemPrompt: buildPageTranslateSystemPrompt(),
+      userParts: [
+        { text: buildPageTranslatePrompt({ bookContext }) },
+        { inlineData: { mimeType: "image/jpeg", data: image } },
+      ],
+      responseSchema: pageTranslationResponseSchema,
+      maxOutputTokens: 16384,
+    },
+    env,
+    fetchImpl,
+  );
+}
+
 export function buildUserPrompt({ selectionBbox, bookContext, options }) {
   const lines = [
     "Circled region bounding box in image pixels: " +
@@ -85,6 +116,17 @@ export function buildUserPrompt({ selectionBbox, bookContext, options }) {
   lines.push(`Gloss language: ${options?.glossLanguage || "id"}.`);
   if (options?.transliteration === false) {
     lines.push("Transliteration fields may be left empty.");
+  }
+  return lines.join("\n");
+}
+
+export function buildPageTranslatePrompt({ bookContext }) {
+  const lines = ["Translate this page word by word for interlinear display."];
+  if (bookContext?.title) {
+    lines.push(
+      `The page is from the book "${bookContext.title}"` +
+        (bookContext.page ? `, page ${bookContext.page}.` : "."),
+    );
   }
   return lines.join("\n");
 }

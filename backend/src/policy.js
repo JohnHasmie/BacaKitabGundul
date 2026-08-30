@@ -13,12 +13,13 @@ const configPath = join(
 export const referenceBooks = JSON.parse(readFileSync(configPath, "utf8"));
 
 /**
- * Stable system prompt shared by all analysis calls. Kept at the front and
- * unchanged between requests so provider prompt caching applies. The
- * religious-content policy lives HERE, backend-only — the app UI never
- * surfaces it beyond an "AI explanation" label and a report button.
+ * Shared preamble for every endpoint's system prompt: expertise framing plus
+ * the religious-content policy. The policy lives HERE, backend-only — the
+ * app UI never surfaces it beyond an "AI explanation" label and a report
+ * button. Each endpoint appends its own TASK/OUTPUT sections; the composed
+ * prompts stay stable between requests so provider prompt caching applies.
  */
-export function buildSystemPrompt() {
+function policyPreamble() {
   const fields = Object.entries(referenceBooks.fields)
     .map(([field, works]) => `- ${field}: ${works.join("; ")}`)
     .join("\n");
@@ -34,6 +35,13 @@ export function buildSystemPrompt() {
     fields,
     "If you cannot ground a claim in these references, omit the claim entirely",
     "rather than guessing.",
+  ];
+}
+
+/** System prompt for /v1/analyze — byte-identical to the pre-refactor prompt. */
+export function buildSystemPrompt() {
+  return [
+    ...policyPreamble(),
     "",
     "TASK:",
     "The user circled a word or phrase in the page image. The circled region is",
@@ -47,5 +55,27 @@ export function buildSystemPrompt() {
     "Arabic fields stay Arabic with full harakat. Transliteration uses standard",
     "Latin transliteration. confidence is your honest 0..1 estimate; lower it",
     "for blurry scans instead of guessing confidently.",
+  ].join("\n");
+}
+
+/** System prompt for /v1/page-translate (plan §Fase 3, mockup screen 9). */
+export function buildPageTranslateSystemPrompt() {
+  return [
+    ...policyPreamble(),
+    "",
+    "TASK:",
+    "Translate this full kitab page word by word for an interlinear display.",
+    "Transcribe the main text (matn) ONLY — skip marginal commentary, page",
+    "headers, and page numbers. Emit one lines[] entry per physical line of",
+    "the page, and within each line list the words in logical reading order,",
+    "right-to-left exactly as read. Do not merge or reorder lines.",
+    "",
+    "OUTPUT:",
+    "Respond with JSON exactly matching the provided schema. Each word carries",
+    "the Arabic exactly as printed and a SHORT Bahasa Indonesia gloss of at",
+    "most three words fitting this sentence's context. bbox is the word's",
+    "approximate position with x, y, w, h normalized to 0..1 of the image;",
+    "it is advisory only. confidence is your honest 0..1 estimate for the",
+    "whole page; lower it for blurry scans instead of guessing confidently.",
   ].join("\n");
 }

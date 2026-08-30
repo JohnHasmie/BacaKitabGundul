@@ -33,6 +33,12 @@ Fly.io, Cloud Run). Put the resulting URL into the app: **Atur → Server AI**.
     model streams;
   - `{"type":"complete","result":{…}}` — the full schema result;
   - `{"type":"error","message":"…"}`.
+- `POST /v1/page-translate` — full-page interlinear translation (plan
+  §Fase 3): body `{ image: <base64 jpeg>, bookContext? }`; SSE frames are
+  `{"type":"progress","wordCount":N}` while the page streams (a full page
+  takes 20-60s), then `complete` with
+  `{ lines: [ { words: [ { arabic, gloss, bbox } ] } ], confidence }`,
+  or `error`.
 - `GET /healthz` — liveness probe.
 
 ## Tests

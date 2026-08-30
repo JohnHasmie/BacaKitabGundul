@@ -43,12 +43,15 @@ app/src/main/java/com/classicbookreader/app/
 backend/                 # /v1/analyze SSE service (Node, zero-dependency)
 ```
 
-Phase status: **Phase 2 (in-app AI pipeline) complete** — on top of the
-Phase 1 reader: circle-to-analyze mode (edge glow + lasso gesture),
-selection cropped to JPEG with context margin, streaming analysis sheet
-(Cara Baca / I'rob / Shorof / Arti) with early-harakat partials, save-word
-flow + saved-words screen, Room analysis cache (same circle never pays
-twice), and a settings field for the backend URL — blank runs a built-in
-demo analysis so the UX works without a server. `backend/` hosts the
-matching `/v1/analyze` service (Gemini 2.5 Flash by default; the API key
-lives only there).
+Phase status: **Phase 3 (interlinear translation) complete** — on top of
+the Phase 2 AI pipeline: a translate toggle in the reader renders the page
+as flowing RTL rows of word chips (Arabic + Indonesian gloss), translated
+per page on explicit request only (cost control), streamed with live word
+counts, cached in Room per (book, page) with a "Terjemahkan ulang" escape
+hatch, adjustable text size, and tap-any-word to open the Phase 2 analysis
+sheet. `backend/` gained the matching `/v1/page-translate` SSE endpoint on
+a shared model-streaming core. Earlier phases: circle-to-analyze mode with
+streaming analysis sheet (Cara Baca / I'rob / Shorof / Arti), saved words,
+PDF import/library/reader. Blank backend URL runs built-in demo responses
+so the whole UX works without a server; the API key lives only in the
+backend.
